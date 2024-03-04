@@ -1,0 +1,449 @@
+Introduction 
+------------ 
+  - What are we trying to accomplish by working on this project? (The mail GOAL!!)
+    - In the last couple of months, we have covered all the technical aspects of building a full stack application. We started from the very basics of HTML, CSS, and JavaScript, and we have now covered all the way to building a full stack application with a database, server, and client. At the end of the day, all these skills are just tools we collected to build a solution to a problem. (Meaning, you now have a hammer, a screwdriver, and a wrench, and the skill to build a house). There are still a lot of other things you will learn when you start building applications that solve real world problems. 
+
+    - Here are the main goals we are trying to acheive right after you complete this project. 
+      - The number one goal of this project is to give you a sense of what it is like to work on a real world project 
+        - This helps you solidify your understanding of the concepts you have learned so far 
+        - Increases your confidence in your skills when you go out and look for a job 
+      
+      - We will do everyone's job in this project 
+        - The Archtect
+        - The Designer
+        - The Developer
+        - The Tester
+        - The Business Developer
+        - The Project Manager
+
+
+      - Prepare for the AI lead future 
+
+      - Learn how to work with a team 
+
+      - Learn how to work with a client 
+
+      - Apply the proper security measures to your application (Which is based on the open http protocol) 
+
+      - Learn the deployment process 
+
+      - Learn the business develpment process 
+
+- Business development 
+----------------------
+  - Defining the problem:
+  ----------------------- 
+    - Clearly identify gaps in the business process that you can improve with code
+    -----------------------------------------------------------------------------   
+      - To identify problems, you have to first understand the day to day work flow of the business. 
+        - This could be achieved: 
+          - By interviewing the business owner  
+          - By interviewing the customers
+          - By observing the business in action
+          - By researching the industry and competitors 
+          AI: OR: Ask ChatGPT this 
+            What does a typical day to day work flow of a car service company look like? 
+
+      ** Observe what a regular day looks like in Abe's Garage and identify areas where you can help improve the efficiency of the business using code  
+
+        Customer walk ins 
+          - The customer goes to the receptionist 
+          - Explains the problem the car has and asks if they have the service 
+          - Discusses pricing 
+          - If they agree, they start the process of accepting the car 
+            - This process is manual 
+            * - First they write down all the details of the car 
+              - Tag, car type, service requested, etc ... 
+              (When the customer comes back another time, this step is repeated again) 
+            - They accept payment 
+              - Through card or cash
+            * - Then they prepare a recipt to give to the customer 
+            - Accept the key and gives the customer an estimate of time for completion 
+          * - The manager then assigns a mechanic to work on the car 
+            - Usually multiple mechanics for different services  
+          
+          - Up on delivery 
+            * - Customers usually call back to check on the status of the service 
+            * - Or the garage calls back telling them to pick up the car 
+
+        Calls 
+          * - Calls to get general information 
+            - Working hours 
+            - Direction 
+            - Services provided by the garage 
+            - etc ... 
+          - Customer calls 
+            * - To check on the status of their car that is being serviced 
+            * - The garage calling customers to let them know that the service is done  
+            * - To ask a copy of a recipt of past services, usually for tax or insurance services 
+
+        Marketing department 
+          - Out reach to get new customers  
+          * - Inbound marketing
+            - For new customers to find the business 
+            SEO and Google Business Optimization 
+          - Customer retention 
+            * - Getting returning customers 
+            * - Recalls 
+          
+        Legal dept 
+          * - Making customers sign agrements when they leave their car in the garage 
+          * - Responsibilities after receiving their car 
+          - Etc... 
+
+        Operations 
+          - Purchasing all the neccessary items 
+            * - Keeping track of items that are low in inventory 
+          - Handling utility/service payments 
+          - Taxes
+            - Collect and organize all recipts 
+
+  - Describe a web based solution to the problems identified (Quantify the value added)  
+  --------------------------------------------------------------------------------------  
+    ** All values added calculations are with the following assumptions (This could be changed based on the business) 
+      - The garage serves 5 customers a day, 5 days a week 
+      - It is 1,300 customers per year 
+      - An average customer spends $400 per visit
+      - The time of the manager is worth $25/hr 
+      - The time of the mechanic is worth $25/hr 
+      - The time of the receptionist is worth $15/hr 
+      - The garage saves 5 general information calls per day 
+      - The garage saves 3 calls to check on the status of the service per day 
+      - Each call takes 3 mins to handle 
+      - It takes 10 minutes to recreate a recipt (2 requests per week) 
+    
+    Problem: The business is lossing potentially returning customers only because it doesn't have a way to reach out to them 
+      - Create a way to store customer information 
+        Value added: 
+          - 10% of customers come back for recalls and promotions  
+          - 10% of customers come back for recalls * 1,300 customers per year * $400 per visit * 5 years = $260,000 in 5 years 
+    
+    Problem: Managers are currently following up with the mechanics manually 
+      - Create a way to assign tasks to mechanics and give them the ability to update the status of the task 
+        Value added:
+          (Assuming the new system saves 30 mins per day per manager) 
+          - 30 mins per day * 5 days a week * 52 weeks a year * 5 years = 39,000 mins of manager saved in 5 years 
+          - 39,000 mins / 60 mins = 650 hours 
+          - 650 hours * $25/hr = $16,250 saved in 5 years
+    
+    Problem: Decrease the ammount of general question calls 
+      - Build public facing pages on the app to provide general information 
+        Value added: 
+          - 5 calls per day * 3 mins per call * 5 days a week * 52 weeks a year * 5 years = 19,500 mins of receptionist saved in 5 years 
+          - 19,500 mins / 60 mins = 325 hours 
+          - 325 hours * $15/hr = $4,875 saved in 5 years 
+
+    Problem: Decrease the ammount of calls to check on the status of the service  
+      - Create a way for the customer to check on the status of the order with out the need to call
+        Value added: 
+          - 3 calls per day * 3 mins per call * 5 days a week * 52 weeks a year * 5 years = 11,700 mins of receptionist saved in 5 years 
+          - 11,700 mins / 60 mins = 195 hours 
+          - 195 hours * $15/hr = $2,925 saved in 5 years
+
+    Problem: Decrease the ammount of time spent on creating recipts 
+      - Create a way for customers to download recipts 
+        Value added: 
+          - 10 mins per week * 52 weeks a year * 5 years = 2,600 mins of manager saved in 5 years 
+          - 2,600 mins / 60 mins = 43 hours 
+          - 43 hours * $25/hr = $1,075 saved in 5 years
+
+    Problem: Returning customers are wasting their time to provide their car's information again and again 
+      - Create a way to store customer car information 
+        Value added: 
+          - This could save up to 15 minutes of customer's time per visit 
+          - 15 mins per visit * 1,300 customers per year * 5 years = 97,500 mins of customer saved in 5 years 
+          - 97,500 mins / 60 mins = 1,625 hours
+          (Assuming customers make an average of $25/hr)
+          - 1,625 hours * $25/hr = $40,625 saved in 5 years (for customers) 
+
+    Problem: New customers are not finding the business online
+      - Create a way to optimize the app for search engines 
+        Value added: 
+          - If this gets 5 additional customers per month
+          - 5 customers per month * 12 months a year * 5 years = 300 additional customers in 5 years
+          - 300 additional customers * $400 per visit = $120,000 in revenue in 5 years  
+
+    Problem: The business is not able to reach out to customers when there is a factory recall
+      - Create a way to filter customers by car and reach out to them 
+        Value added: 
+          - Value already added in the first problem 
+
+    Total value added: 
+      - $260,000 + $16,250 + $4,875 + $2,925 + $1,075 + $40,625 + $120,000 = $445,750 in 5 years 
+      - These values are excluding the value that comes with better customer satisfaction and retention 
+      - Assuming the profit margin is 20% 
+        - $445,750 * 20% ~ $90,000 net profit in 5 years 
+      - It is usually considered a fair practice to capture 20% of the value added 
+        - $90,000 * 20% = $18,000 
+      - That means a fair price to ask for the project is $18,000 
+
+
+      ** That is how normally works: 
+        - For example, if you take Evangadi, the value we are trying to add is save our students the amount it takes them to learn a Fullstack application development skills.
+          - Say it takes an average student a year to learn the skills we teach in 6 months. If the student is spending 3 hrs a day to study, and if the student makes $25/hr. That means we are saving the student $25 * 3 * 7 * 4 * 6 = $12,600 in 6 months. 
+          - If we capture 20% of that value, that means we can charge $2,520 for the course. (That is how pricing is calculated in most cases) 
+            - As the value provided increases, the price is considered cheaper. 
+          - You know it takes 4 years for people to aquire that level of skill even with the help of Universities.
+            - That means the value we are creating is more of $50,000  
+
+  - Scoping the project
+  ------------------- 
+    - Project overview: 
+      - Abe's Garage App is a comprehensive software solution designed to streamline and enhance the day-to-day workflow of Abe's Garage. The application aims to simplify the process of accepting customers, managing appointments, and monitoring task progress for improved efficiency and customer satisfaction.
+    
+    - Functional Requirements: 
+      - Public facing static pages to provide useful information to the customes 
+        - Home page: (/)
+          - Provides a general overview of the Garage 
+          - Provides a way to navigate to other pages 
+          - A way to login to the Admin area 
+        - About us page (/about)
+          - A page to provide the general story of the company 
+        - Services page (/services)
+          - List of the general services the company provides 
+        - Contact us page (/contact)
+          - To provide the contact information and location of the Garage 
+
+      - Employee registration and Authentication:
+        - The management team should be able to create accounts for their employees 
+        - Employees should be able to log in securelly 
+        - Different employee roles (e.g., admin, manager, staff) should have appropriate access levels and permissions.
+        - Admins should be able to grant and/or take access of employees 
+
+      - Customers management: 
+        - Employees with admin/manager role should be able to add/edit/delete customers to the system  
+        - The system should store and display relevant client details, such as contact information, vehicle details, and service history. 
+        - Employees should be able to search and filter customers based on their name. email address or phone number 
+      
+      - Order management: 
+        - Admins should be able to add/edit/delete orders 
+        - Admins should be able to assign orders to technicians 
+        - The system should track the status of tasks and display progress updates 
+        - Customers should be able to check the status/progress of the order remotelly and with out the need to log in or create an account 
+
+    - Non-functional Requirements: 
+      - The application should be responsive and mobile friendly 
+      - Security:
+        - The application should implement robust security measures, including encryption of sensitive data, secure authentication, and access controls based on user roles.
+        - Compliance with relevant data protection regulations should be ensured.
+
+      - Performance: 
+        - Response times for loading pages and executing operations should be kept within acceptable limits.
+      
+      - Scalability: 
+        - The application should be designed to scale easily to accommodate future growth in user base and data volume. 
+
+      - Usability: 
+        - The application should be intuitive and easy to use, with a clean and modern user interface. 
+        - The application should be responsive and mobile friendly. 
+      
+      - Maintainability: 
+        - The application should be well documented and written in a way that makes it easy to maintain and extend. 
+        - The application should be designed to facilitate future enhancements and modifications. 
+
+      - Reliability:
+        - The application should be designed to minimize the risk of system failure and data loss. 
+      
+  - Technology stack:
+  -------------------
+    - The project will be based on the Node.js and Express.js framework 
+    - MySql for the database 
+    - React.js for the front end 
+    - Bootstrap for the styling
+    - AWS for hosting the App 
+    - Git for version control 
+    (Add this to the scope of the project) 
+
+  - Project timeline: 
+  -------------------
+    Note that the timeline provided in here is just a place holder. The actual timeline is dependent on the resources allocated to the project. 
+    - Project Kickoff and Planning (1 week)
+    - Design and Wireframing (1 weeks) 
+    - Backend Development (2 weeks) 
+    - Frontend Development (2 weeks) 
+    - Testing and Deployment (1 weeks)
+    - Post-launch Support and Maintenance (Ongoing) 
+
+  - Project proposal:
+  -------------------
+    Generated proposal: 
+      Sample 1: https://docs.google.com/document/d/1oQoKxDbmXEU5An23PsCefoqZb3cmcCXTBcYpZSC_qIg/edit 
+
+      Sample 2: https://docs.google.com/document/d/1ca32650_7JnvMSVy4v7OeI4rilo2i9jJJMsO75T3h50/edit
+
+  - Prepare an agreement document 
+  -------------------------------
+    https://docs.google.com/document/d/1LXsG5v_oy_tuvZMGHu5Q2lqeiFRK9TjAgOF5WtFsIoY/edit 
+  
+- Designs 
+--------- 
+  - System Design: 
+    - System design is the process of defining the architecture, interfaces, and data for a system that satisfies specific requirements.
+    
+    - A good system design requires you to think about everything in an infrastructure, from the hardware and software, all the way down to the data and how it’s stored. 
+
+    - System design gets more and more complicated as the scale of the system grows. 
+      - A system that works for 100,000 users might not work for 100 million users. Therefore, the system we choose to use is dependent on the scale of the system we are trying to build. Regardless of the scale, there are fundamental components that are used in every system design. Let's try to design a system that we need to build our garage App. 
+
+      1. The server we need to use to host our application. 
+        - These are the main components to consider while choosing a server 
+          - CPU (Processor)
+          - Memory (RAM)
+          - Storage (Hard Drive) 
+          - Network (Bandwidth) 
+          - Operating System (OS) 
+          - Software (Web Server, Application Server, Database Server, etc.) 
+
+          ** Other things to consider 
+            - Reliability 
+            - Security 
+            - Cost 
+            - Automatic backups 
+            - Scalability 
+            - Monitoring 
+            - Ease of use 
+            - Customer service 
+
+        - The server we choose will depend on the scale of our application. 
+          - If we are building a large application, we will need to use multiple servers to host our application. 
+            - We will need to use a load balancer to distribute the traffic between the servers.
+            - We will need to use a proxy server to handle the requests between the client and the servers.
+            - We will need to have a cache server to store the data that is frequently accessed. 
+            - We will probably need multiple servers to store files and images. 
+
+          - If we are building a small application, we can use a single server to host our application.  
+
+        - For small scale applications like ours, here are the recomended specifications of a server 
+          - CPU: 2.5 GHz 
+          - Memory: 2 GB 
+          - Storage: 10 GB 
+          - Network: 100 Mbps 
+          - OS: Ubuntu 18.04 
+          - Software: Node.js, MySql, Express 
+
+          - With these criteria, we can use small shared hosting services like Bluehost, Hostgator, etc. If we look for a more secure and scalable option, we can use cloud hosting services like AWS, Google Cloud, etc. 
+
+        * We will use AWS's EC2 service to host our application. 
+        
+      2. The database (It has its own section. We will cover the details later on) 
+        - We can use NoSql databases like MongoDB for small scale appications. Relational databases are more recomended for larger scale applications and they are the most common ones in the industry. 
+        
+        * We will use MySql as our database. 
+
+      3. Development architecture style 
+        - We will try to use Microservices as much as possible. Microservices are small, independent, and loosely coupled services that work together. They are easier to maintain and scale. 
+
+        - In large scale applications, each Microservice might have its own database and separate servers. In small scale applications, we can use a single database and server for all the Microservices. 
+
+        - We will just try to decouple our services as much as possible. Each service will have its own folder, files, routes and controllers. 
+
+        - There are also other architecture styles like Monolithic, Serverless, MVC, etc that you can base your structure on. We will just try to keep it simple and try to build as many Microservices as possible to make our application more scalable. 
+
+        **  In our specific case, we will have the following Microservices 
+          - Login (Authentication) 
+          - Employees 
+          - Customers 
+          - Orders 
+          - Services to provide  
+          - Vehicle
+          - We can also add a service to manage installing the DB tables and seeding initial data 
+
+      4. The APIs  
+        - We will use RESTful API to communicate between the client, server and the database.  
+
+      5. The client 
+        - We will use React.js as our front-end framework. 
+        - We will also a Bootstrap template to make our application look better and give us a head start. 
+      
+      6. Version control 
+        - We will use Git and Github to manage our code. 
+
+      7. The deployment 
+        - We will also use the Git workflow to deploy our application 
+
+      8. The monitoring 
+        - We will use AWS CloudWatch to monitor our application. 
+  
+  - Wireframes
+    A wirefreme is used to map out the main features and navigation of a new website design. It gives an idea of the site's functionality before considering visual design elements, like content and color schemes.
+
+    - This is the job of designers. Laying out the navigation of the website provides a very usefull guidance to developers too. As we don't have designers in this project, we will just list the navigation links of the website. 
+
+      - You can read this article to learn more about wireframing: 
+      https://blog.hubspot.com/website/website-wireframe 
+
+    - Navigation links on our app 
+      - Root level public pages  
+        - Home page (/) 
+        - About us page (/about) 
+        - Services page (/services) 
+        - Contact us page (/contact) 
+        - Login page (/login) 
+        - Order details (/order/{orderHash})
+
+      - Admin (Login required) 
+        - Admin dashboard (/admin)
+        - Employees (/admin/employees) 
+        - Add employee (/admin/add-employee) 
+        - Edit employee (/admin/employee/edit/:id) 
+        - Customers (/admin/customers) 
+        - Add customer (/admin/add-customer) 
+        - Edit customer (/admin/customer/edit/:id) 
+        - Customer details (/admin/customer/{customerId})
+        - Add vehicle (/admin/customer/{customerId}) - Conditionally displayed on the customer details page  
+        - Orders (/admin/orders) 
+        - Add order (/admin/order) 
+        - Edit order (/admin/order/{orderHash}/edit) 
+        - Services (/admin/services) 
+        - Add service (/admin/add-service) 
+
+      - Admin/Private pages with further explanations: 
+        - Admin dashboard: (/admin) 
+          - To show list of internal pages for the purpose of easier navigation 
+        - Employees (/admin/employees)
+          - To show list of all added employees 
+        - Add employee (/admin/add-employee) 
+          - To add a new employee 
+        - Edit employee (/admin/employee/edit/:id)
+          - To edit an existing employee 
+        - Customers (/admin/customers) 
+          - To show list of all added customers 
+        - Add customer (/admin/add-customer)
+          - To add a new customer 
+        - Edit customer (/admin/customer/edit/:id)  
+          - To edit an existing customer 
+        - Orders (/admin/orders) 
+          - To show list of all added orders 
+        - Add order (/admin/order) 
+          - To add a new order 
+        - Edit order (/admin/order/{orderHash}/edit) 
+          - To update the status of an existing order 
+        - Order details (/admin/order/{orderHash})
+          - To show the details of an existing order 
+          - Customers also use this page to check on the status of their order 
+      
+  - UX/UI designs  
+    - UX/UI designs are the visual representation of the wireframes. 
+    - Once again, since we don't have designers on this project, we will start from a template and customize it to our needs. 
+
+    * For the purpose of this project, we will look for a Bootstrap template on https://themeforest.net/ and use it as a starting point. 
+      - Doing a quick search on the website, we found this template: 
+        - https://themeforest.net/item/autorex-car-service-workshop-html-template/29813970 
+
+    - We can then customise the design for the pages we identified in the wireframes. 
+      Images we need 
+        - Logo  
+          - Downloaded this image and modified it to create a custom logo for Abe Garage 
+            https://www.shutterstock.com/image-vector/car-logo-automotive-repair-vector-garage-2256922273 
+
+        - Banner images 
+          Downloaded this image and modified to use it 
+            https://www.shutterstock.com/image-photo/mechanic-pouring-motor-oil-engine-copy-2074528060 
+        
+        - Used MidJourney through discored to generate more banner images 
+          https://www.midjourney.com/ 
+
+    - Complete list of the designs are included inside the UI-Designs-Abe-Garage folder
+
+    ** Recomended step at this stage, update the project proposal with the designs and send it to the client for approval before moving forward 
+      - If in case you are developing general purpose App, you might get to this point befor you even send out the proposal. It is always a good idea to include the desings in the proposal. The client will have a better understanding of what they are getting.   
