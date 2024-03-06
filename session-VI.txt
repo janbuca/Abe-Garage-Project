@@ -1,0 +1,428 @@
+Building Abe Garage's App - Building the Authentication System
+-------------------------------------------------------------- 
+
+  - In today's class, we will try to write all the codes we need to implement the authentication system for the Garage App. Authentication is the base for any application that requires users to login. The pages we serve (or not serve) to the user will depend on whether the user has the right credentials to access the page. 
+
+  - We will also create the forms that we will use to add a new employee and the login page to authenticate an employee.  
+
+  - Let's start 
+
+  Write the code to install our database tables 
+  ---------------------------------------------
+    - Connecting to our database and creating the tables we need for our app. 
+      - To do that, we need our database connection parameters. We first need to add the database connection parameters to our .env file. (Which we already did in the previous class) 
+      
+      db.config.js
+        - We need to create our connection inside of our db.config.js file. 
+          - Install the mysql2 module 
+            - npm install mysql2 
+          // Import the mysql2 module Promise Wrapper 
+            - Since we are trying to run our queries asynchronously, the promise wrapper will provide us with a promise based interface to run our queries. 
+          // Prepare connection parameters we use to connect to the database 
+          // Create the connection pool  
+          // Prepare a function that will execute the SQL queries asynchronously 
+          // Export the query function for use in the application 
+
+      app.js 
+        - We also need to create our webserver to handle our requests 
+          - Install the express module 
+            - npm install express 
+          // Import the express module 
+          - We also need to import our environment variables 
+          - Install the dotenv module 
+            - npm install dotenv
+          // Import the dotenv module and call the config method to load the environment variables
+          // Create a variable to hold our port number 
+          // Create the webserver 
+          // Start the webserver
+          // Export the webserver for use in the application 
+
+      - Next is to prepare a route to handle our install request 
+        - install.routes.js 
+          - We need to create a route to handle the install request
+          // Import the express module  
+          // Call the router method from express to create the router 
+          // Import the install controller 
+          // Create a route to handle the install request 
+          // Export the router
+
+        - install.controller.js 
+          - We need to create a controller to handle the install request 
+          // Import the install service to handle communication with the database 
+          // Create a function to handle the install request
+            // Call the install service to create the database tables 
+              - The service will return a message to indicate whether the tables were created successfully or not 
+            // Check the message returned from the service 
+              - If the tables were created successfully, send a success response to the client 
+              - If the tables were not created successfully, send a failure response to the client
+            // Send the response back to the client 
+          // Export the function for use in the router 
+        
+        - install.service.js 
+          - We need to create this file first to handle communication with the database 
+          // Import the query function from the db.config.js file 
+          // Write a function to create the database tables 
+            - This function reads all the sql queries from the sql folder and executes them one after the other 
+            - Create the sql folder and paste the file containing the sql queries in there 
+            // Import the fs module to read our sql file 
+            // Create a variable to hold the path to the sql folder 
+            // Temporary variable, used to store all queries, the return message and the current query
+            // Create a promise to handle the asynchronous reading of the file and storing of the queries in the variables  
+            //Loop through the queries and execute them one by one asynchronously  
+            // Prepare the final message to return to the controller 
+            // Return the final message
+          // Export the install function for use in the controller
+
+        - index.js (inside of our routes folder) 
+          - We need to import the install routes into our application  
+          // Import the express module 
+          // Call the router method from express to create the router 
+          // Import the install router 
+          // Add the install router to the main router 
+          // Export the router for use in the application 
+
+        - app.js 
+          - We need to import the routes into our application 
+          // Import the routes (Right before the webserver is created) 
+          // Add the routes to the application as middleware (Right before the webserver is started)
+
+        - Run the application and test the install route 
+          - Use postman to send a post request to the install route 
+            localhost:8000/install
+            - You can also use your browser for this 
+          - The tables should be created in the database 
+  
+  Prepare the login and the add employee pages on our react application  
+  ---------------------------------------------------------------------  
+
+    - Go to your frontend folder and start the frontend application 
+      - npm start 
+      - You will notice the babel dependencies not declared notice 
+        - You can install it under your dev dependencies 
+          - npm install --save-dev @babel/plugin-proposal-private-property-in-object
+    
+    - The two pages we are trying to create today are the login and add-employee pages. Lets also create the home page along the way 
+      - Let's create the component files for these pages first 
+        - Also return place holder text in the component files 
+        (You can use the rsf command to create the component files quickly) 
+        Home: / 
+          - Home.js (inside of the pages folder - already created)
+        Login: /login 
+          - Login.js (inside of the pages folder - already created)
+        Add Employee: /add-employee 
+          - AddEmployee.js (inside of the pages/admin folder)
+
+    App.js 
+      - Remove the default code from the App.js file 
+      - Add the routes to the pages
+        - Install the react-router module 
+          - npm install react-router
+        - Install the BrowserRouter 
+          - npm install react-router-dom
+        - on index.js 
+          // Import the BrowserRouter 
+          // Wrap the App component with the BrowserRouter
+        - on App.js 
+          // Import the Routes and Route components from react-router 
+
+      // Import the page components 
+      // Import the Routes and Route components from react-router
+      // Create the routes 
+
+      - Run the application and test the routes 
+        - localhost:3000 
+        - localhost:3000/login 
+        - localhost:3000/add-employee 
+
+      - We can now start on implementing the design for the pages 
+
+    Implementing the header and footer components based on our template
+    ------------------------------------------------------------------- 
+      - Let's us start by moving all the CSS files from our template to our project 
+      - Collect all the files and folders the template uses for styling in one folder and copy it to the src/assets folder of our react application 
+        - Which includes the css, fonts and images folders (We don't need the js and inc folders) 
+        - Let's name it "template_assets" 
+      - Let's us now add the necessary css files to our app 
+      
+      App.js 
+        // Import the css files 
+        - You can see which files are imported in the header of the template's index.html file 
+          - bootstrap.css
+          - style.css 
+          - responsive.css 
+          - color.css 
+        - Most of the time, templates we buy are dependent on jQuery. For that reason the templates import a lot of other CSSs that we don't need 
+          - For that reason, we might see errors at this stage. Just monitor the errors and fix the issues by reading the error messages 
+          - For example in our case, jquery-ui.css is added and throwing error 
+            - Take out files that we don't need for the main css 
+              - owl.css
+              - jquery-ui.css
+              - jquery.fancybox.min.css
+              - scrollbar.css
+              - jquery.touchspin.css 
+              - polyglot-language-switcher.css  
+              - There are probably more files that we don't need. You can spend some time cleaning these files. Not necessary though 
+        - Let's also create one css file to hold our custom stylings and add it to the app 
+          - Create a file called custom.css inside of the assets/styles folder 
+          - Import the file in the App.js file
+          // Import the custom css file 
+
+      Header.js (inside of the markup/components folder) 
+        - rsf and create the Header component 
+        - Copy the header section from the template's index.html file and paste it in the Header component 
+          - Take out the comments that don't work with JSX 
+          - Replace all the css classes with className 
+        - Let's add our header to the App.js file (helps to identify issues)
+          // Import the Header component on the App.js file  
+          // Add the Header component to the App component before the routes 
+            - Because we want the header to be visible on all the pages 
+            - Run and fix the errors 
+          // Import the logo image
+            - Add it to the JSX 
+
+      Footer.js (inside of the markup/components folder) 
+        - rsf and create the Footer component 
+        - Copy the footer section from the template's index.html file and paste it in the Footer component 
+          - Take out the comments that don't work with JSX 
+          - Replace all the css classes with className 
+        - Let's add our footer to the App.js file (helps to identify issues)
+          // Import the Footer component on the App.js file  
+          // Add the Footer component to the App component after the routes 
+            - Because we want the footer to be visible on all the pages 
+            - Run and fix the errors 
+    
+    Implementing the Login page 
+    --------------------------- 
+      - Login.js (inside of pages) 
+        - According to our design, the login page only contains the login form 
+        - To better structure our code, let's keep all codes containing partial components inside of the markup/component folder and we will import them into the pages 
+        - Create the LoginForm component first
+          - From the template file, copy the html code for the login form and paste it in the LoginForm component  
+          - Import LoginForm component into the Login page 
+          // Import the LoginForm component 
+          // Add the LoginForm component to the Login page 
+
+    Implementing the Add Employee page 
+    ---------------------------------- 
+      - AddEmployee.js (inside of pages/admin) 
+        - According to our design, the add employee page contains the add employee form and the Admin Menu 
+        - Let's create the AddEmployeeForm and AdminMenu components first (Let's put them inside of the markup/components/Admin folder ) 
+          - From the template file, copy the html code for the add employee form and paste it in the AddEmployeeForm component  
+          - Import AddEmployeeForm component into the AddEmployee page 
+          // Import the AddEmployeeForm component 
+          // Add the AddEmployeeForm component to the AddEmployee page 
+        - Let's create the AdminMenu component 
+          - From the template file, copy the html code for the Admin Menu and paste it in the AdminMenu component  
+          - Import AdminMenu component into the AddEmployee page 
+          // Import the AdminMenu component 
+          // Add the AdminMenu component to the AddEmployee page
+          - We actually want the two components to load side by side 
+          - We can use the bootstrap classes to achieve this 
+        - Add the css classes to actually style the two components the way they look on the design 
+          - If you have already finished this while modifying the template, you can just copy paste the custom styles you wrote to your custom.css file 
+
+  Securing our application so that sensitive data is not exposed 
+  -------------------------------------------------------------- 
+
+    - As a full stack developer, you are responsible for protecting the data that your application stores and processes. This includes sensitive data like user credentials, personal information, and payment details if your application has one. It is a known fact that there are lots of attackers on the internet trying to steal sensitive data from any application that they can exploit and use that to their advantage. For that reason, it is critical that you take the necessary steps to secure your application and protect your users' data. 
+
+    - The first step in securing your application is to understand the potential security vulnerabilities that your application might have. One thing you have to understand is that you can NEVER make your application 100% secure. There will always be vulnerabilities that you might not be aware of. However, you can take the necessary steps to minimize the risk of your application being exploited. The number one security measure you can take, especially as a junior developer, is not to save highly sensitive data like SSN numbers, credit card numbers, government IDs, etc. in your database at all. Data that doesn't exist can not be hacked. 
+
+    - Other less sensitive data like user credentials, names, addresses, etc. can also cause a lot of damage if they are exposed. For example, most people use the same password for all their accounts. If your application is hacked and the user credentials are exposed, the hacker can use the same credentials to access the user's other accounts (their email account and even bank accounts). For reasons like these, it is very important to take the responsibility of securing your application and protecting user's data seriously. Yes it is the responsibility of the user not to use the same email and password for all applications. When you are a user of other applications, you should also be careful about the data you share with those applications. But as a developer, you have to take the responsibility of securing your application and protecting user's data seriously. 
+
+    - In today's lesson, we will try to list out some of the common security vulnerabilities that your application might have and how to prevent them. We can't cover all, but we will try to cover some of the most common ones that you should pay attention when working on small scale applications like this one. 
+
+
+    Common security vulnerabilities and how to prevent them
+    ------------------------------------------------------- 
+      - Data exposure during transmission
+        - The vulnerability: 
+          - When data is transmitted between the client and the server, it is possible for a third party to intercept and read the data. This could be any data including the user's credentials. 
+
+        - The solution: 
+          - Use HTTPS to encrypt data transmission between the client and the server. This prevents data from being intercepted and read in transit.
+
+        - How it works: 
+          - Normally, the internet uses HTTP protocol to transmit data between the client and the server. HTTP is a text based protocol that just sends data as is. This means, anyone can intercept and read the data. Which leads to exposure of sensitive data. 
+
+          - To protect the data, that is to make it hard to understand instead of unaccessible, we add another protocol called the SSL/TLS protocol on top of the HTTP protocol. This protocol encrypts the data before it is transmitted between the client and the server. This means, even if a third party intercepts the data, they will not be able to read it. 
+
+          - To enforce this protocol, you first need to find a certificate authority that will issue you a certificate. This certificate is a file that contains information about your application and the certificate authority. The certificate authority is a trusted third party that verifies that you are who you say you are. The certificate authority will issue you a certificate if you can prove that you are the owner of the domain name that you are requesting the certificate for. Once the certificate is issued, you can install it on your server so that your server can use it to encrypt data transmission. You then configure your server to use HTTPS instead of HTTP all the time. 
+
+          - When a client makes a request to the server using your domain, the server first sends the certificate to the client. The certificate contains the public key of the server. The client then verifies the certificate and if it is valid, it generates a symmetric key and encrypts it with the server's public key. The client then sends the encrypted symmetric key to the server. The server then decrypts the symmetric key using its private key. The client and the server then use the symmetric key to encrypt and decrypt data that is transmitted between them. This way, even if a third party intercepts the data, they will not be able to read it.   
+          
+          - The certificate is valid for a certain period of time. After that, it expires and you have to renew it. 
+
+        - Implementation: 
+          We will do that once we launch our application. 
+          
+      - SQL Injection
+        - The vulnerability: 
+          - SQL injection is a code injection technique that might destroy your database. SQL injection is one of the most common web hacking techniques. It is the placement of malicious code in SQL statements, via web page input. SQL injection usually occurs when you ask a user for input, like their username/userid, and instead of a name/id, the user gives you an SQL statement that you will unknowingly run on your database.
+          - For example, if you ask for the user's username and the user enters the following as their username: 
+            - ' OR 1=1; DROP TABLE users; --
+            - This will be concatenated with the SQL query that you are using to retrieve the user's data and the resulting query will be: 
+              - SELECT * FROM users WHERE username = '' OR 1=1; DROP TABLE users; --'
+            - This will delete the users table from your database.
+            - If the user enters the following as their username: 
+              - ' OR 1=1; --
+            - The resulting query will be:
+              - SELECT * FROM users WHERE username = '' OR 1=1; --'
+            - This will return all the users in your database. 
+        
+        - The solution: 
+          - Use prepared statements and parameterized queries. These are SQL statements that are sent to and parsed by the database server separately from any parameters. This way it is impossible for an attacker to inject malicious SQL.
+          - For example in Node.js, you can use the mysql2 package to connect to your database and use prepared statements and parameterized queries. 
+            - If you go back and see our query method inside of our db.config.js file, you can see that our sql query is separate from the parameters passed by the user. The execute method is responsible to clean up the parameters before sending them to the database. This way, even if the user enters a malicious SQL statement, it will not be executed. The '?' in the sql query is a placeholder for the parameters. The parameters are passed as an array as the second argument to the execute method.  
+
+        - Implementation: 
+          - We have already implemented this in our application.
+
+      - Cross-Site Scripting (XSS)
+        - The vulnerability: 
+          - Cross-site scripting (XSS) is a type of security vulnerability typically found in web applications. XSS attacks enable attackers to inject client-side scripts into web pages viewed by other users. 
+          
+          - The common goal of an XSS attacker is to trick an application into accepting a script it should not accept and then trick the application into including that script on user's browser. If successful, the attacker can steal user's session cookies, deface web sites, insert hostile content, redirect the user to malicious sites or even introduce worms. 
+
+          - For example: Let's say you are building a website with a comment section. You have a form where the user can enter their comment and you store the comment in your database. You then retrieve the comment from the database and display it on the page. If you don't sanitize the comment before displaying it on the page, the user can enter a malicious script as their comment and when you display it on the page, the script will be executed. 
+            - As simple as this: 
+              - <script>alert('Hello World')</script> 
+            - Or with an external link as this: 
+              - <script src="http://evil.com/malicious.js"></script>
+            
+            - The end user’s browser has no way to know that the script should not be trusted, and will execute the script. Because it thinks the script came from a trusted source, the malicious script can access any cookies, session tokens, or other sensitive information retained by the browser and used with that site.
+        
+        - The solution: 
+          - Sanitize user input before saving it to the database or displaying it on the page.
+            - Just by the fact that we are using JSON based data exchange between the client and the server and using the standard libraries to encode/decode our data we are protected from XSS attacks for the most part. 
+            - But it is still a good habit to sanitize user input before saving it to the database or displaying it on the page.  
+            - React's JSX by default prevents XSS attacks by escaping any values embedded in JSX before rendering them.
+            - Example 1: 
+              - For example, in Node.js, you can use the xss or xss-clean packages to sanitize user input.
+              - Note: The xss-clean package just got deprecated.  
+                - Just checked and there is this another module called sanitize or express-sanitizer that can be used instead.
+                - https://www.npmjs.com/package/sanitize 
+                  - You can find the documentation in there on how to use it. 
+
+        - Implementation: 
+          - Install sanitize
+            - npm install sanitize 
+          // Import the sanitizer module 
+            const sanitize = require('sanitize');
+          - We will need to add it on our app as a middleware 
+            - Right after the express.json() middleware 
+            // Add the express.json() middleware 
+            // Add the sanitizer to the express middleware 
+
+      - Cross-Site Request Forgery (CSRF)
+        - The vulnerability: 
+          - This is a type of security vulnerability that occurs when an attacker tricks a user into performing actions on a web application without their knowledge or consent. This is done by exploiting the trust that a website has in the user's browser, allowing the attacker to execute unauthorized actions on behalf of the victim user. 
+            - For example: 
+              - The attacker can build a simple website with a malicious code that tries to access the cookies of the user's browser. The attacker then convinces the user to visit the malicious website. The malicious code will be executed and the cookies will be sent to the attacker. The attacker can then use the cookies to send an authorized request to the website that the user is logged in. The website will think that the request is coming from the user and will execute it. 
+
+        - The solution: 
+          - Modern browsers have built-in protection against CSRF attacks. They don't allow cross-origin requests by default. If your front-end and back-end are on the same domain, you don't have to deal with configuring this cross-origin requests. Since we are building our app assuming that the front-end and back-end are going to be on different servers, at least on different domains, we will need to configure our back-end to allow cross-origin requests that are coming from our front-end. 
+          - We should also make sure not to allow any requests that are coming from other domains. 
+
+        - Implementation: 
+          - The CORS module is specifically designed to deal with cross-origin requests. 
+          - Install the CORS module 
+            - npm install cors  
+          // Import the CORS module 
+            const cors = require('cors');
+          // Set up the CORS options to allow requests from our front-end 
+            - Set the url inside of our environment variables
+          // Add the CORS middleware 
+
+      - Other security measures you should take 
+        - Before we move on and start implementing the authentication and authorization, let's talk about some other security measures you should take.
+
+        - Principle of Least Privilege
+          - Only give the minimum amount of access needed for the application to function properly 
+            - Secure the server by only giving the minimum amount of access needed for the application to function properly.
+          - Only open SSH access to specific IP addresses. 
+            
+        - Minimizing damage when a security breach occurs 
+          - Don't save sensitive data in your database (like credit card numbers, social security numbers, etc.)
+          - Password protection 
+            - Use a hashing algorithm to hash the passwords before saving them to the database. 
+            - Use a salt to make the hashing more secure. 
+            - Use a strong hashing algorithm like bcrypt.  
+          - Backup and Disaster Recovery
+
+      - Authentication and Authorization
+        - The vulnerability: 
+          - Authentication is the process of verifying who a user is. Authorization is the process of verifying what they have access to (The Roles). We could expose sensitive data or functionalities to unauthorized users if we don't implement authentication and authorization properly. 
+
+        - The solution: 
+          - We will implement authentication and authorization using JSON Web Tokens (JWT). 
+
+        - Implementation: 
+          Authentication
+            Backend
+              - Let's start from the route to handle the "Add Employee" request 
+              employee.routes.js 
+                // Import the express module  
+                // Call the router method from express to create the router 
+                // Import the install controller 
+                // Import the add employee controller 
+                // Create a route to handle the add employee request on post
+                // Export the router
+              index.js (of routes)
+                // Import the employee routes 
+                // Add the employee routes to the main router 
+              employee.controller.js
+                // Import the employee service 
+                // Create the add employee controller
+                  // Check if employee email already exists in the database 
+                    - If it does, return an error 
+                    - If it doesn't, call the add employee service 
+                  // Call the createEmployee method from the employee service 
+                    - Use try catch 
+                    - If successful, return the employee
+                    - If not successful, return an error 
+                    - If error in catch, return the error too 
+              employee.service.js
+                // Import the query function from the db.config.js file 
+                // A function to check if employee exists in the database
+                  - checkIfEmployeeExists
+                // A function to create a new employee 
+                  - createEmployee 
+                    - Instal bcrypt 
+                      - npm install bcrypt 
+                    Note:
+                    ----- 
+                      - bcrypt is a slow one-way hashing algorithm 
+                      - It is designed to be slow and hard to reverse engineer 
+                      - The way it works is, 
+                        - First, a salt is generated (Which is a random string of characters) 
+                        - Then the salt is added to the password 
+                        - Then the password is hashed using the bcrypt algorithm 
+                        - This gets repeated to a certain number of times (The number of times is called the "rounds") 
+                        - Then the salt is again added to the hashed password (This is the final hashed password that is saved to the database)
+                        - When bcrypt later needs to check if a password is correct, it will first get the salt from the hashed password, apply the same number of rounds to the password that the user entered, and then compare the two hashed passwords. 
+                      - As we are only interested in making the passwords unreadable, we could have used other hashing algorithms like SHA-256.
+                        - But bcrypt is designed to be slow and hard to reverse engineer. 
+                        - Plus we can control the number of rounds to make it even more secure. 
+                        - As it uses this salt and rounds, it is also more secure against dictionary attacks. 
+                    // Import the bcrypt module 
+                    // Generate a salt and hash the password 
+                    // Hash the password 
+                    // Insert the email in to the employee table  
+                    // Get the employee id from the insert 
+                    // Insert the remaining data in to the employee_info, employee_pass, and employee_role tables  
+                    // construct to the employee object to return 
+                    // Return the employee object 
+                // Export the functions for use in the controller
+              
+                - Test if the Add Employee API works (Use Postman)
+                  - See what a hashed password looks like in the database 
+
+
+
+
+
+
+
+
+  
