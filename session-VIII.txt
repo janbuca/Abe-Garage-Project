@@ -1,0 +1,76 @@
+  Preparing our Context to pass data to children components 
+  ---------------------------------------------------------  
+    - Let's start from the Context folder we created the last time 
+      - Create a new file called `AuthContext.js` (this is where we will create the authentication context) 
+      - This will provide the data that is saved on the user's browser to the rest of the application 
+    - To include the data in our context, we need a function to read the data from the user's local storage first  
+      - Under the "util" folder, create a new file called `auth.js`
+        // Function to read the data from the user's local storage - getAuth  
+          - We use the "getItem" method to read the data from the local storage 
+          - We use the "JSON.parse" method to convert the string to an object 
+          - We also need a function to help us decode the token 
+            // Function to decode the payload from the token - decodeTokenPayload 
+              - Don't even bother to understand how this function works. Just copy and paste it whenever you need to decode the token payload. It just uses the "decodeURIComponent" and will return the payload as an object. Just like how you see it on the jwt.io website.
+          - Since we have the decoded token payload now, we can just save the individual properties on the employee object for later use. 
+          - We can then return the employee object 
+         
+    - Now, let's go back to the AuthContext.js file we created and prepare our context 
+      - In `AuthContext.js`,
+        // Import React and the Hooks we need here 
+        // Import the "getAuth" function we created in auth.js  
+      - We need to create a context object 
+        // Create a context object 
+      - We need to create a provider component (AuthProvider)
+        // Create a provider component 
+          - Remember, the provider component is the component that will wrap our application and provide the data to the rest of the application. Our goal is to include all the data we need to pass to the rest of the application inside of the value property of the provider component. 
+          - We will pass the employee data that we will get from the getAuth method we wrote 
+          - We could also pass function to use to update the data (Ex: isLogged and isAdmin)
+          - We can now use the useEffect hook to set the states with the values we get from our utility method 
+          - Finally, we can return the provider component 
+      - We need to create a custom hook to use the context
+        // Create a custom hook to use the context
+          - This helps us keep our code clean and easy to read 
+          - We could have just used the useContext hook directly on our components but it is cleaner to create a custom hook and use it instead 
+          * We can now use our custom hook to access the data in the context
+    - Now, we can use the context in our application
+      - The first step would be to wrap our application with the provider component so that the data is available to the rest of the application 
+        - On our "index.js" file, we need to wrap our application with the provider component 
+          // Import the AuthContext 
+          // Wrap the application with the AuthContext provider component
+    - Now, we can use the custom hook we created to access the data in the context 
+      - Let's start by implementing the conditional components on our header  
+        - On the "Header.js" file, we need to import the custom hook we created 
+          // Import the custom context hook
+          - Test the hook by logging the data to the console 
+            - console.log(useAuth());   
+        - We need to use the custom hook to access the data in the context 
+          // Use the custom hook and destructure the data we need 
+
+        - Let's start from the simple one and write the conditional component to display the welcome message for logged in users and the company's phone number for users who are not logged in 
+          - We need to use the "isLogged" property to determine if the user is logged in or not and display the appropriate component 
+            // Conditional welcome message block 
+
+        - Now, let's write the conditional component to display the login link for users who are not logged in and the logout link for users who are logged in
+          - We first need to write the "Logout" function to handle cleaning our local storage 
+            - On the "login.service.js" file
+              // A function to log out the user 
+          - Import the "login.service.js" file on our "Header.js" file  
+            // Import the login service to access the logout function
+          - We also need to write out log out event handler function inside the "Header" component  
+            // Log out event handler function
+          - We need to use the "isLogged" property to determine if the user is logged in or not and display the appropriate block 
+            // Conditional login/logout block 
+              - We can implement these as links to the respective pages 
+                - We need to import the "Link" component from "react-router-dom" 
+                  // Import the Link component from react-router-dom 
+                - We need to use the "Link" component to create the links 
+                  // Create the login and logout links 
+                    - We need to use the "onClick" event handler to call the logout function when the user clicks on the logout link 
+                      // Call the logout function when the user clicks on the logout link
+                - Test the logout functionality 
+                  - Click on the logout link and check if the user is logged out 
+                    - We can also check the local storage to see if the token is removed 
+                Note: 
+                  Test user: 
+                    - Email:  firstTest@ddd.com 
+                    - Password: 123456 
