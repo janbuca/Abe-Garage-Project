@@ -75,7 +75,7 @@ Introduction
           - Customer calls 
             * - To check on the status of their car that is being serviced 
             * - The garage calling customers to let them know that the service is done  
-            * - To ask a copy of a recipt of past services, usually for tax or insurance services 
+            * - To ask a copy of a recept of past services, usually for tax or insurance services 
 
         Marketing department 
           - Out reach to get new customers  
