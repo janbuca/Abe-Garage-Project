@@ -1,0 +1,565 @@
+Building a simple application - continued ... 
+--------------------------------------------- 
+  .
+  .
+  . 
+
+  Deploy the frontend
+  -------------------
+    - cd to the frontend folder 
+    - npm install 
+      - If in case it fails, it could be related with memorey. You can try the following 
+        - Use this command to check 
+          - df -h 
+    - npm run build 
+      - This will help in creating an optimized production build 
+        - optimizes your code for production by minifying and bundling it
+        - organizes your project's assets, like images and fonts, and makes them available from the public folder
+        - etc ... 
+    - We need to have a server to serve our static files 
+      - We can use static webservers like Apache, Nginx or Express to server our static files 
+      - We can use Express for that  
+        - Create a server.js file
+          - This will be the file that will serve our static files 
+          - Add the following code to the server.js file 
+            // Import express and path modules.
+            const express = require('express');
+            const path = require('path');
+            // Create an express app.
+            const app = express();
+            // Serve the static files from the React app.
+            app.use(express.static(path.join(__dirname, 'build')));
+            // Redirect every request to index.html 
+            app.get('*', function (req, res) {
+              res.sendFile(path.join(__dirname, 'build', 'index.html'));
+            });
+            // Listen to the default port 80 
+            app.listen(80);
+          - Push it to your github repo (Which I already did) 
+          - Pull it to your server 
+        - Run the server  
+          - You can do node server.js 
+          * The first thing you will notice is, since apache is already listening to port 80, you will get an error 
+            - To fix this, we need to stop the apache server 
+              - sudo systemctl stop apache2 
+          * The second thing you will notice, since port 80 is a privileged port, you will get an error 
+            - To fix this, we need to run the server as a root user 
+              - sudo node server.js 
+            - You can also use the pm2 package to run the server (Just like we did for the backend) 
+              - sudo pm2 start server.js 
+          - To test the frontend
+            - Open the browser and go to 
+              - http://<Public DNS (IPv4)>
+          - It should work now 
+        - The problem is, since we have already stopped apache, we can't use phpmyadmin to check our db 
+
+      - Another common approach is to use Apache or Nginx to serve your static files  
+        - Since we already have installed Apache, lets just use that
+
+        - The Apache default webserver points to the /var/www/html folder. We can create anothe host folder for our project and point the server to that folder 
+          Steps: 
+            - Create a new folder with your domain name inside of the /var/www/ folder 
+              - sudo mkdir /var/www/abegarage.com
+            - Copy the build folder to the new folder 
+              - sudo cp -r ~/demoapp/frontend/build /var/www/abegarage.com
+            - Change the ownership of the folder to the ubuntu user so that you can easily manage the files using your ubuntu user 
+              - sudo chown -R ubuntu:ubuntu /var/www/abegarage.com/build
+            - Create a new vhost file for the new host 
+              - sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/abegarage.com.conf
+            - Open the new config file with your editor 
+              - sudo vim /etc/apache2/sites-available/abegarage.com.conf
+            - Edit the following lines
+              - ServerName abegarage.com
+              - ServerAlias www.abegarage.com
+              - DocumentRoot /var/www/abegarage.com/build
+            - Add the following lines to specify the directory permissions 
+              (You can also do this on the apache2.conf file - /etc/apache2/apache2.conf)
+              <Directory /var/www/abegarage.com/build>
+                Options Indexes FollowSymLinks
+                AllowOverride All
+                Require all granted
+              </Directory>
+            - Save and exit
+            - Enable the new site 
+              - sudo a2ensite abegarage.com.conf 
+            - Disable the default site
+              - sudo a2dissite 000-default.conf
+            - Restart the server (Apache)
+              - sudo systemctl restart apache2
+            - Test the frontend 
+              - http://<Public DNS (IPv4)> 
+
+        - If you check internal/secondary pages, you will see that they are not working 
+          - This is because, we are using react which is a single page application  
+          - To fix this, we need to do the following
+            - create an .htaccess file inside of your public folder to redirect all requests to index.html 
+              - You can also run the following command to enable mod_rewrite  
+                - sudo a2enmod rewrite 
+            - Add the following code to the .htaccess file
+              - RewriteEngine On
+                RewriteBase /
+                RewriteRule ^index\.html$ - [L]
+                RewriteCond %{REQUEST_FILENAME} !-f
+                RewriteCond %{REQUEST_FILENAME} !-d
+                RewriteCond %{REQUEST_FILENAME} !-l
+                RewriteRule . /index.html [L]
+            - Save and exit 
+          - Restart the server (Apache)
+            - sudo systemctl restart apache2
+
+        - Finally, in case the server restarts, we need to configure apache to start automatically. To do that, add these lines to apache's service config 
+          sudo vim /etc/systemd/system/apache2.service 
+          
+          [Unit]
+          Description=The Apache HTTP Server
+          After=network.target remote-fs.target nss-lookup.target
+          [Service]
+          Type=forking
+          PIDFile=/var/run/apache2/apache2.pid
+          ExecStart=/usr/sbin/apachectl start0ol,. ,mkkkkkkkkkkkkkkkkkkkkkjj
+          kjiuuu-6*ExecStop=/usr/sbin/apachectl stop
+          ExecReload=/usr/sbin/apachectl graceful
+          PrivateTmp=true
+          [Install]
+          WantedBy=multi-user.target
+          - Save and exit
+        
+        - Connect the domain name with google.domains
+          - Go to google.domains 
+          - Go to DNS 
+          - Add a new record 
+            - Type: A 
+            - Name: @ 
+            - IPv4 address:
+                - Add a test employee and login to test the app 
+          - Wait for a couple of minutes untile the DNS is propagated 
+
+        - Set up SSL 
+          We will do this later at the end of the project 
+          Tutorial: 
+            https://www.youtube.com/watch?v=Kk9kuf6D8so 
+
+  Restructure the project files following standard/most used folder structure 
+  --------------------------------------------------------------------------- 
+    - The purpose of following standard folder structure is to make the project more readable and maintainable      
+      - Other develpers can easily understand the project 
+      - If you want to add new features or fix bugs, you can easily find the files that you need to work on 
+      - Otherwise, it will get messy real quick. Will be very hard to maintain the project 
+
+    - Here is a typical well organized folder structure for a node (backend) project 
+      ├ backend 
+        ├── app.js 
+          - (This is where everything starts from.)
+        ├── config 
+          - (This folder contains all the configuration files)
+          ├── db.config.js
+        ├── controllers 
+          - (This folder contains all the controllers that handle the requests and responses)
+          ├── microServiceName1.controller.js 
+          ├── microServiceName2.controller.js
+        ├── middlewares 
+          - (This folder contains all the middlewares that we want to use before we process the request)
+          ├── authJwt.js
+          ├── verifySignUp.js
+        ├── models 
+          - (This folder contains all the models that we will use to interact with the database) 
+          ├── microServiceName1.model.js
+          ├── microServiceName2.model.js
+        ├── routes 
+          - (This folder contains all the routes/paths that we will use to handle the requests)
+          ├── microServiceName1.routes.js
+          ├── microServiceName2.routes.js
+        ├── services 
+          -(This folder contains all the code that we will use to interact with the database)
+          ├── microServiceName1.service.js
+          ├── microServiceName2.service.js
+        ├── utils 
+          - (This folder contains all the utility functions that we will use in the project. Meaning function or set of functions that provide reusable functionality or perform common tasks. Example could be a function to handle errors, a function to generate random numbers, etc.) 
+          ├── utilityName.util.js
+        ├── node_modules 
+          - (This folder contains all the dependencies that we install using npm)
+        ├── package.json 
+          - (This file contains all the information about the project and the dependencies that we install using npm) 
+        ├── package-lock.json 
+          - (This file contains all the information about the dependencies that we install using npm)
+        ├── README.md 
+          - (This file containss explanation about the project)
+        ├── .gitignore 
+          - (This file contains all the files that we want to ignore when we push the project to github) 
+        ├── .env 
+          - (This file contains all the environment variables that we will use in the project. To save variables that we don't want to push to github. Example could be database username, password, etc.) 
+        ├── .eslintrc.js 
+          - (This file contains all the rules that we want to use to lint our code. Linting is the process of running a program that will analyze code for potential errors.)
+        ├── __tests__ 
+          - (This folder contains all the tests that we will write for the project. Example could be unit tests, integration tests, etc.) 
+          ├── microServiceName1.test.js
+          ├── microServiceName2.test.js 
+    
+    - Here is a typical well organized folder structure for a react (frontend) project 
+      ├ fronend
+        ├── public
+        ├── node_modules
+        ├── src
+          ├── assets
+            ├── images
+            ├── styles
+          ├── Context
+            ├── context1
+              ├── Context1.js
+            ├── context2
+              ├── Context2.js
+          ├── markup 
+            ├── components
+              ├── component1
+                ├── Component1.js
+                ├── Component1.css
+              ├── component2
+                ├── Component2.js
+                ├── Component2.css
+            ├── pages
+              ├── page1
+                ├── Page1.js
+                ├── Page1.css
+              ├── page2
+                ├── Page2.js
+                ├── Page2.css
+          ├── services
+            ├── service1
+              ├── service1.js
+            ├── service2
+              ├── service2.js
+          ├── App.js
+          ├── App.css
+          ├── index.js
+          ├── index.css
+          ├── reportWebVitals.js
+          ├── setupTests.js
+        ├── .gitignore
+        ├── package.json
+        ├── package-lock.json
+        ├── README.md
+        ├── .env 
+        ├── .eslintrc.json
+        ├── .vscode
+    
+    - Let us now restructure the demo app following the standard folder structure 
+      - Lets start from the backend 
+
+        - Let's start by creating the .env file inside of our backend folder and move our database connection variables to it 
+          - Create a .env file inside of the backend folder 
+          - Move the database connection variables to the .env file 
+            # Port to run the server on 
+            # Database connection details
+          - Add the .env file to the .gitignore file 
+          - Save and exit 
+
+        - Let's create a new file db.config.js inside of a new config folder and move the db configuration to the db.config.js file 
+          - Create a config folder inside of the backend folder 
+          - Create a db.config.js file inside of the config folder 
+          - We need to import the variables inside of the .env file to our db.config.js file 
+            - For that, we need the dotenv package 
+              - npm install dotenv
+            // Import the dotenv module and call the config()
+              - That is to load the environment variables on process.env 
+                - If our .env file is in the root folder, we don't need to specify the path 
+                - If we use a different name for the .env file, or if we put the .env file in a different folder, we need to specify the path 
+                  - Example: 
+                    require('dotenv').config({ path: './.env' })
+                - Note: 
+                  We only need to import the dotenv module once in the entire application. Since we will import it later in the app.js file, we don't need to import it here.  
+            // Import the mysql module
+              By using require('mysql2/promise'), you can access the Promise-based version of the MySQL2 module, which simplifies working with asynchronous operations and makes it easier to handle queries and transactions using promises or async/await syntax. 
+            // Define the connection parameters for the database 
+            // Create the connection pool
+              - A connection pool allows you to reuse established database connections instead of creating a new connection for each database operation. This improves the performance of your application by saving the time required to create and close database connections.
+                - This is ideal for large-scale applications that require many database operations. 
+
+              - We can also use the createConnection() method to create a connection to the database.  However, the createConnection() method creates only one connection at a time. You can end the connection by calling the end() method of the connection object. createPool is better for scalability.
+            // Create an async function to execute sql queries 
+            // Export the query method for running sql queries in other files  
+
+        - We can now start updating our app.js file to make it more readable and maintainable
+          - Remove the db connection code from the app.js file 
+            - Remove the import statement for the mysql module 
+            - Remove the connection parameters (dbConfig)
+            - Remove the connection we created 
+            - Remove the connect call 
+          - We can also import the PORT variable from the .env file instead of decalring it inhere 
+            // Import the dotenv module 
+            // Get the port from the environment variable 
+          
+          - Let's now move all the other codes to their proper places 
+            - For our demo app, we can catagorize the app into two microservices 
+              - 1. Login microservice 
+              - 2. Employee microservice
+
+            - Let's start with the login microservice 
+              - Let's move the routes first 
+                - Create a new folder called routes inside of the backend folder 
+                - Inside of it, create one file for each microservice we want to create 
+                  - So, we will create two files 
+                    - login.routes.js 
+                    - employee.routes.js
+                  ** This matches the microservices that we have in our demo app (One per microservice)
+                - We can now move the routes from the app.js file to their respective files 
+
+                - login.routes.js 
+                // Import the express module 
+                // Import the router module 
+                - The purpose of this router file is to accept all requests that are sent to the api endpoints related with the login microservice and then call the appropriate controller function to handle the request. If necessary, it also calls the appropriate middleware function to validate the request. 
+                - At this point, we don't yet have the controller function or the middleware function. But we can complete the code by calling the files and functions we will write when we create the conteoller files. 
+                // Import the login controller 
+                  - We know it is going to be inside of the controllers folder and we know it is going to be called login.controller.js 
+                  - We also know it is going to have a function called logIn that hanles the login request   
+                // Pass the login request to the login controller 
+                // Export the router
+
+              - Lets us now create the controller folder and files to hold the handlers  
+                - Create the controllers folder 
+                  - Create two files inside of it (One for each microservice)
+                    - login.controller.js 
+                    - employee.controller.js
+                - Let's work on login.controller.js 
+                  // A function to handle the login request 
+                    - We already called a function called logIn in the login.routes.js file 
+                    - The function will accept the request and response objects as parameters and will send a response back to the client 
+                    - Let's just send a dummy response for now  
+                      - Since the db call is handled by the service layer, we will just return some dummy data for now 
+                      - We will then write the service code and come back to this function
+                        const response = {
+                          message: 'Working!',
+                        };
+                        res.status(200).json(response); 
+                    // Export the function 
+                - We can now go back to our app.js file and import the login routes and remove the login handler function from the app.js file 
+                  - // Import the login route 
+                    const loginRoutes = require('./routes/login.routes');
+                  - // Add the login router to the middleware chain 
+                    app.use(loginRoutes);
+                  - Test if the login is responding as expected using Postman  
+                
+                - We can now go back to our login.controller.js file and connect it to the service code that is used to connect to the db and execute the query 
+                  - Create a new folder called services inside of the backend folder 
+                    - Create two files inside of it (One for each microservice)
+                      - login.service.js 
+                      - employee.service.js 
+                  - Let's work on login.service.js 
+                    // Import the db connection file  
+                    // A function to handle the login request
+                      - This function should recieve the username and password from the request object and use it to query the database
+                      - Use a try catch block to handle errors  
+                    // Write the sql query to check if the employee exists in the database  
+                      - This is the query we used in the app.js file  
+                    // Execute the query (use the query method from the db connection file) 
+                      - The query method returns a promise. So, we can use async await to handle the promise 
+                      - Save the result of the query to a variable 
+                    // If the query returns a result, return the result. Otherwise, return null 
+                      - If there is an error log it to the console in the catch block 
+                        // Log the error to the console 
+                        // Export the function
+                    Note: We could add additional abstraction layer in here instead of directly writing the sql query in the service file. We can create models to objectify the data and make them more of like a javaScript object. We can use ORM libraries to do that. If you want to read more about it, Sequelize is one of the most adapted ORM libraries for Node.js. You can find more information about it here: https://sequelize.org. For this project, we will just use the sql queries directly to interact with the database. 
+
+                  - Let's go back to our login.controller.js file and connect it to the service code
+                    // Import the login service 
+                    - Inside of the login controller function, call the login service 
+                      // Call the login service to check if the employee exists in the database
+                      // If the employee exists and the password matches, return success response. Otherwise, return failure response  
+                        - Test if the login is working as expected (Use postman) 
+            
+            - Let's now work on the employee microservice
+              - Let's start by moving the routes to the employee.routes.js file 
+                - // Import express module 
+                - // Import the router module  
+                - // Import the employee controller 
+                  - The function to handle the add employee request is not yet created. Let's just write the import code first and go ahead and create the function in the controller file 
+                - on employee.controller.js file, create a function to handle the add employee request 
+                  - Import the employee service to handle the db call 
+                  - This function is not created yet niether. Let's create it and come back to this file 
+                - On employee.service.js file, create a function to handle the db call
+                  // Import the db connection file  
+                  // A function to handle the add employee request 
+                    - We should use the try catch block to handle errors 
+                    // Write the sql query to add the employee to the database 
+                      - We can copy this from the app.js file 
+                      - Since the query in app.js was using the req.body object, we need to change it to use the parameters instead (employeeData) 
+                    // Execute the query (use the query method from the db connection file)
+                      // If the query returns a result, return the result. Otherwise, return null  
+                - Let's go back to our employee.controller.js file and connect it to the service code 
+                  // Import the employee service 
+                  // A function to handle the add employee request   
+                  // Call the employee service to add an employee to the database 
+                  // If the employee is added successfully, return success response. Otherwise, return failure response 
+                  // Send a success/failure response back to the client
+                  // Export the function
+                - Let's go back to our employee.routes.js file and connect it to the controller code 
+                  // Import the employee controller 
+                  // Create a post request handler for the add employee route
+                  // Export the router
+                - Let's go back to our app.js file and import the employee routes 
+                  // Import the add employee router 
+                    const employeeRoutes = require('./routes/employee.routes');
+                  // Add the add employee router to the middleware chain
+                    app.use(employeeRoutes);
+                  - Remove the old add employee handler function from the app.js file  
+                  - Test if the add employee is working as expected (Use postman) 
+                - Instead of importing each route to the app.js file, the better approach is to create and index.js file inside of the routes folde and collect every route in there. We can then just import the index.js file  
+                  - Create index.js file inside of the routes folder 
+                  // Import the express module  
+                  // Import the router module 
+                  // Import the login router
+                  // Import the add employee router
+                  // Add the login routers to the middleware chain
+                  // Add the add employee router to the middleware chain
+                  // Export the router   
+                - Let's go back to our app.js file and import the index.js file 
+                  // Import the routes (index file)
+                  // Add the routes index file to the middleware chain 
+                  // Remove the old middleware routes from the app.js file
+                    - Including the imported route files 
+                    ** Remove the test root route as well - get('/') 
+                - Lastly lets replace the CORS middleware with the CORS package 
+                  // Import the CORS package 
+                  // Add the CORS middleware to the middleware chain (Right after creating the express app)
+                    - We can also specify the origin and other options in here 
+                    - Lets just leave it as is for now 
+                    - Remove the old code 
+                    * Notice how clear and readable our app.js is now. 
+                    - Test if the login and add employee routes are working as expected (Use postman)
+            
+            - Before we move on, one thing I like to do on my projects is to create one dedicated route to execute all the initial SQL queries when needed. 
+              - This usually runs only once to set the database up. Once the tables are set, we don't need to run it again. 
+              - For that, let's create one microservice just for the initial installation that runs on the backend server 
+                - Install microserver 
+                  - routes 
+                    install.routes.js
+                      // Import express module 
+                      // Import the router module
+                      // Import the install controller
+                      // Create a post request handler for the install route
+                      // Export the router
+                  - controllers 
+                    install.controller.js
+                      // Import the install service 
+                      // A function to handle the install request 
+                      // Call the install service to run the initial SQL queries 
+                      // If the queries are executed successfully, return success response. Otherwise, return failure response 
+                      // Send a success/failure response back to the client
+                      // Export the function
+                  - services 
+                    install.service.js
+                    - Runs the query on the db 
+                    - First, create the file to hold the sql queries 
+                      - Create a new folder called sql inside of the services folder 
+                      - Create a new file called initial-queries.sql inside of the sql folder 
+                      - Write a sql query to create the employee table 
+                    // Import the db connection file 
+                    // Import the fs module to read in files 
+                    // A function to install DB directly from the api 
+                      - Read the sql file 
+                      - Prepare the query by ignoring comment lines and empty lines 
+                      - Execute the query
+                    // Export the function
+                    - Remove all the tables from the db and run the install service to test if it's working as expected 
+                      - We can use the install service to run the initial queries 
+                      - Test if the install service is working as expected (Use postman) 
+
+          - Let's now work on the remaining standard structures 
+            - As we were cleaning up the app.js file, we already took care of the config, routes, controllers, and services folders. 
+            - The other remaining folders are the middlewares and util folders. We will be using these to store the custom middlewares and utility functions we will be creating. As we don't have one yet, let's just create the folders for now. Note, if we had desided to add a model layer, we would have created a models folder as well. 
+              - Create a middlewares folder 
+              - Create a util folder 
+            - We have already created the .env and .gitignore files. 
+            - Let's add the ESLint configuration to our directory now 
+              - We mainly use ESLint to enforce a consistent style and help us avoid bugs.       
+              - Run the following command to initialize ESLint in our project
+                npm init @eslint/config 
+                - This will install the eslint package as dev dependency and create a .eslintrc.js file in our project directory
+                Note: 
+                  "dependencies": Packages required by your application in production.
+                  "devDependencies": Packages that are only needed for local development and testing.
+              - This will ask us a few questions to configure ESLint. 
+                - Choose to check syntax, find problems, and enforce code style 
+                - Choose CommonJS as we are using it for the backend 
+                - Choose Non of these 
+                - Answer no for TypeScript 
+                - Choose Node 
+                - Choose Answer some questions about your style 
+                - Choose javaScript 
+                - Choose single quotes 
+                - unix, 
+                - Yes to semicolons 
+                - install using npm 
+              - This will create a .eslintrc.js file in our project directory 
+                - This contains the common rules that we want to enforce in our project 
+                - We can add additional rules to this file if we want to 
+                * You can also borrow what other developers are using for their projects. For example, you can use the Airbnb style guide.  
+                  - Enable Format on Save in VSCode. This will automatically format the code when we save the file. It checks the ESLint rules and formats the code accordingly. 
+                    - Go to settings 
+                    - Search for format on save 
+                    - Check the box 
+                * If you don't have the ESlint extension, install that too 
+                  https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint 
+                - Notice how this gives us a lot of error as we were not following the ESLint rules so far. 
+                  - Fix the errors to match the ESLint rules 
+                  * Here is a good video to learn more about ESLint 
+                    https://www.youtube.com/watch?v=SydnKbGc7W8 
+
+                        
+          - Finally, lets create a test folder to hold all of our test codes 
+              - Since we did not learn how to use Jest testing yet, we will cover it in a separate video. Will share the link of the video when it is ready. 
+              - But note this, even though writting tests is not common in small size projects, it is very likely that you will be using it in your job. So, it is important to learn how to write tests. We will make a separate video mainly focused on it. 
+              - The other thing, we used the .eslintr file to enforce a consistent style and help us avoid bugs. Yes it is very advisable to enforce rules in a group development environment to ensure consistency. But, it comes with a cost. It takes longer to format your code following the rules. 
+                * For now, just understand it is a common practice in the industry to use ESLint. 
+                - Lets just comment out the ESLint rules for now and disable plugin 
+                  (The time we spend on formatting the code is not worth it for this project. We will just comment it out for now.)
+
+            - That is it for the backend 
+
+      - Let's do the same thing for the frontend 
+        - The front end is already set up for us by the create-react-app command. 
+        - We can do a couple of miner clean ups if we want to 
+          - For example 
+            - We can remove the logo.svg file 
+            - We can remove the App.css file 
+            - Things like that 
+        - We an also create a folder called assets to hold all the images and other assets inside of the src folder 
+        - We can also create a folder called markups to hold all the components and pages inside of the src folder 
+          - Just organizing them under the components and pages folders is also fine. 
+        - One major thing we need to do is set up the .env file 
+          - Instead of modifying the api url in every single file, we can just set it up in the .env file and use it in our code 
+          - It can also save us from updating the url everytime we deploy our app 
+          - Create a .env file in the root directory 
+          - Add the following line to the .env file 
+            REACT_APP_API_URL=http://localhost:4000 
+          - Now, we can use this variable in our code 
+          - Inside of the AddEmployee.js file, replace the url with the env variable 
+            // Import the env variable 
+            const apiUrlRoot = process.env.REACT_APP_API_URL;
+            - Modify the apiUrl link 
+            // Restart the react app to load the env variable 
+            // Test if the app is working as expected
+          - Inside of the Login.js file, replace the url with the env variable 
+            // Import the env variable 
+            const url = process.env.REACT_APP_API_URL;
+            - Modify the apiUrl link 
+            // Test if the app is working as expected                   
+
+    - We can now push the newly restructured app to the server 
+      - Commit and push the changes to the github repo 
+      - Pull to the server 
+      - Remember the .env files are not pushed to the github repo. So, we need to create a .env file in the server as well 
+        - You can also create one locally and just don't push it to the github repo 
+        - Create the local ones, make sure to add the name of the file to the .gitignore file 
+        - Upload them to the server 
+      - Reinstall and run the build again 
+        - cd backend 
+          - npm install 
+        - cd frontend 
+          - rm -rf build/ 
+          - npm install 
+          - npm run build
+        - Copy the build folder to the new folder 
+          - sudo cp -r ~/demoapp/frontend/build /var/www/abegarage.com
+          - sudo chown -R ubuntu:ubuntu /var/www/abegarage.com/build
+        - Restart the server (Apache)
+          - sudo systemctl restart apache2
