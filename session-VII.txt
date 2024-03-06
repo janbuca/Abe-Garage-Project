@@ -1,0 +1,209 @@
+Building the Authentication System ... continued 
+------------------------------------------------ 
+
+              - Implement the feature to log in
+                - Let's start from the route to handle the "Login" request 
+                login.routes.js 
+                  // Import the express module  
+                  // Call the router method from express to create the router 
+                  // Import the login controller 
+                  // Create a route to handle the login request on post
+                  // Export the router
+                index.js (of routes)
+                  // Import the login routes 
+                  // Add the login routes to the main router
+                login.controller.js
+                  // Import the login service 
+                  // Create the login controller
+                    // Call the logIn method from the login service 
+                      - Use try catch 
+                      - If successful, return the employee
+                      - Install jsonwebtoken module 
+                        npm i jsonwebtoken
+
+                        Note:
+                        -----
+                        - The purpose of using tokens is to prove that the sent data comes from a trusted source. 
+                        - The way we can achieve this is by generating a unique "String", we call a token, and share it with the client when they log in. When the user later requests a page or data that requires authentication, they will send the token along with the request claiming that they are authorized to access the data. 
+                        - We can then verify the token to see if it is valid and if it is, we can allow the user to access the data. 
+                        - To help us generate and verify tokens, we will use the jsonwebtoken module.  
+                          - There are methods in the module to generate and verify tokens. 
+                            - The sign method is used to generate a token.
+                            - The verify method is used to verify a token. 
+                        - To generate a token, the sign method takes in three arguments. 
+                          - The payload (The data we want to store in the token)
+                            - This is usually the user id, email, and things like that that we can use in our front end. To display the user's name and things like that. 
+                          - The secret key (A secret key to sign the token)
+                            - This is unique to our application and should be kept secret. 
+                          - The options (The options for the token)
+                        - A signed token usually looks like this 
+
+                          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbXBsb3llZV9pZCI6MywiZW1wbG95ZWVfZW1haWwiOiJ0ZXN0MkB0ZXN0LmNvbSIsImVtcGxveWVlX3JvbGUiOjMsImVtcGxveWVlX2ZpcnN0X25hbWUiOiJUZXN0IiwiaWF0IjoxNjkxNTMxMDE3LCJleHAiOjE2OTE2MTc0MTd9.Hw8btioHmExFrwg5Y_sEEF0GxjLgnzkH9vXHfY9fAjM
+
+                          - As you can see, it has three parts separated by dots. 
+                            - The first part is the header. 
+                              - It contains the algorithm used to sign the token and the type of the token. 
+                              - By default the algorithm is HS256 and the type is JWT. 
+                            - The second part is the payload. 
+                              - It contains the data we want to store in the token. 
+                              - It usually looks like this 
+                                {
+                                  "employee_id": 3,
+                                  "employee_email": "tt@tt.com",
+                                  "employee_role": 3,
+                                  "employee_first_name": "Test",
+                                  "iat": 1691531017,
+                                  "exp": 1691617417
+                                }
+                            - The third part is the signature. 
+                              - It is used to verify the token.
+                              - It is generated using the header, payload, and the secret key. 
+                              - If any of the data is changed, the signature will not match and the token will be invalid during verification. 
+                              - If a hacker tries to change the data in the token, the signature will not match and the token will be invalid as it doesn't know our secret key. 
+
+                        - Remember: 
+                          - JWT does not secure your payload data. You can take any JWT token and decode it to see the payload data. ( An online tool to decoded jwt (https://jwt.io/) ) 
+                          - The purpose of JWT is to verify that the data comes from a trusted source. Not to encrypt the data. 
+
+                      // Import the jsonwebtoken module
+                      * Explain * - Add a secret key to the environment variables 
+                        Note: 
+                        When a server creates a JWT, it encodes the desired payload (claims) into a JSON object and then signs it using a secret key. The signing process involves taking the encoded header, encoded payload, and the secret key, and applying a cryptographic algorithm to generate a signature. The signature ensures that the token has not been tampered with during transmission and provides a means to verify the authenticity of the sender. The signature is added to the token, creating a structure like header.payload.signature.
+                      // Import the secret key from the environment variables
+                      // Create a payload for the token 
+                      // Generate a token
+                      // Return the token
+                      - If not successful, return an error 
+                      - If error in catch, return the error too
+                login.service.js
+                  // Import the query function from the db.config.js file 
+                  // Import the bcrypt module to do the password comparison 
+                  // Import the employee service to get employee by email 
+                    - Add a function to get employee by email inside of the employee service 
+                    // A function to get employee by email   
+                    - export the function 
+
+                  // A function to check if employee exists in the database
+                    - checkIfEmployeeExists
+                  // A function to compare the password 
+                    - comparePassword
+                  // A function to handle the login (login service)
+                    - Use try catch 
+                    // Get the employee by email 
+                    - If employee doesn't exist, return an error 
+                    - If employee exists, compare the password using bcrypt.compare 
+                    - If password is correct, return the employee 
+
+                - Test if the Add Employee API works (Use Postman)
+
+
+            Frontend 
+              - AddEmployeeForm.js 
+                - First thing we need is to create the states to store the data from the form
+                - We also need to create a state to store the error message and the success message
+                - We need to create a function to handle the form submission 
+                // Prevent the default behavior of the form
+                // Handle client side validations
+                  - We can use a flag for that (A variable called "valid" can be used as our flag)
+                - Collect the data from the form and pass it to the service 
+                // Pass the form data to the service 
+                // If Error is returned from the API server, set the error message
+                // Handle successful response 
+                // Redirect 
+                // Handle Catch 
+
+                - Update our JSX to display the error message and the success message 
+                  - Conditionally render the success message if form is submitted successfully and returned a success message 
+                  - Update our form submit handler to the function we created 
+                  - Conditionally render the error message if there is an error message 
+                  - Update the onChange handlers to update the states 
+                  - Update the value of the input fields to the states
+
+              - employee.service.js 
+                - Create a new function to send the data to the API 
+                // Import the apiUrl from the .env file  
+                  - Create react app already configures the dotenv module for us. The variables in the .env file are automatically added to the process.env object when we run the app or build the app. For that reason, we don't need to import the dotenv module.  
+
+
+
+              - Login 
+                - First thing we need is to create the states to store the data from the form
+                - We also need to create a state to store the error message and the success message
+                - We need to create a function to handle the form submission 
+                // Prevent the default behavior of the form
+                // Handle client side validations
+                  - We can use a flag for that (A variable called "valid" can be used as our flag)
+                - Collect the data from the form and pass it to the service 
+                // Pass the form data to the service 
+                // If Error is returned from the API server, set the error message
+                - Handle successful response 
+                // Save the user in the local storage
+                // Redirect 
+                // Handle Catch 
+
+
+***** Moved to the next class ****** 
+
+
+              - Let's now use the token to manage Authorization 
+                - Create the context 
+                  - Create the AuthContext.js 
+                  - Create the auth.header.js inside of services (Could bi in util)
+
+                - The header.js component 
+                  - Check if the user is logged in 
+                    - If the user is logged in 
+                      - Display the logout button and also the employee name at the top  
+                    - If the user is not logged in 
+                      - Display the login button 
+                  
+                  - We can determine if the user is logged in by checking if the token is in the local storage 
+                    - If the token is in the local storage 
+                      - The user is logged in 
+                    - If the token is not in the local storage 
+                      - The user is not logged in 
+                  
+                  - It is not just the header.js file that actually needs to know whether a user is logged in or not. There are lots of other components that are dependent on this information 
+                    - The best thing to do would be to make this information available to all the components in our app. 
+                    - We can use React's context feature to achieve that 
+                  
+                  - Let's start by writing a function to help us read the employee data that is stored on the localStorage first. 
+                    - Since since is a general function, we can put it inside of a new folder called util (Lets name the file auth.js)
+                      - Inside of the auth.header.js file 
+                        - Write all the required functions 
+                    - We can then prepare the context 
+                      - Create a new folder called context 
+                        - Create a new file called auth.context.js 
+                          - Inside of the auth.context.js file 
+                            - Create a new context 
+                            - Export the context
+                    - We can then create a new component that will wrap all the other components 
+                      - Create a new file called auth.context.provider.js 
+                        - Inside of the auth.context.provider.js file 
+                          - Import the context 
+                          - Create a new component called AuthContextProvider 
+                            - Inside of the AuthContextProvider component 
+                              - Create a new state 
+                                - The state will contain the employee data 
+                              - Create a new function to update the state 
+                              - Create a new useEffect hook to read the employee data from the localStorage 
+                              - Return the context provider 
+                                - The value of the context provider will be the state and the function to update the state 
+                          - Export the AuthContextProvider component
+                    - We can then wrap all the other components with the AuthContextProvider component
+                      - Inside of the index.js file 
+                        - Import the AuthContextProvider component 
+                        - Wrap the App component with the AuthContextProvider component
+                    - We can then use the context in the header.js component 
+                      - Inside of the header.js file 
+                        - Import the context 
+                        - Use the context 
+                          - Check if the user is logged in 
+                            - If the user is logged in 
+                              - Display the logout button and also the employee name at the top  
+                            - If the user is not logged in 
+                              - Display the login button
+
+
+
+
