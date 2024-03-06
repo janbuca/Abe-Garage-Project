@@ -1,0 +1,379 @@
+Understand the GitHub Workflow - While building the Employees page 
+-------------------------------------------------------------------- 
+  - What is a development workflow? 
+    - In a sentence, a development workflow is a structured sequence of processes and stages that developers follow when working on a project. The goal of a development workflow is to ensure that the project is developed in a consistent and efficient manner. 
+
+    - There are different types of workflows you could follow based on the type of application being built. 
+      - If the software you are building has multiple versions to be released, then creating a branch for each version is a good idea. 
+      - But for web applications, continuous development and continuous integration is the norm. (CI/CD) 
+      - Since we are building a web application, setting up an environment for continuous development and continuous integration is a good idea.
+        - One of the most common workflows for web applications, that is being used by many companies, is the GitHub workflow.  
+
+  - What is GitHub Workflow? 
+    - It is a set of practices and procedures for collaborating on projects hosted on GitHub. It involves the use of Git, in conjunction with GitHub's additional features and functionalities, to manage and streamline the development process. 
+
+    - The common GitHub workflow looks like this:
+      - Create the repository on GitHub (The master branch)
+      - Clone the repository to your local machine 
+      - Create a new branch from the master Branch  
+        - To work on a new feature or bug fix, create a descriptively named new branch from the "master" branch 
+      - Add commits to the new branch
+      - Push the new branch to the remote repository 
+      - Open a pull request from the new branch to the master branch
+      - Discuss and review the code in the pull request
+      - Merge the new branch to the master branch
+      - Delete the new branch 
+      - Go back to your local repository and delete the new branch locally
+      (Once everything is tested and working, deploy the code to production)  
+
+  - Let's start building the Employees page following the Github workflow 
+    - For the sake of fully understanding the workflow, let's assume that we are a new comer to the project and we are assigned to build the Employees page 
+
+    - The first step would be to be added to the project on GitHub 
+      - The project owner can add you to the project on GitHub 
+        - Under the "Settings" tab, click on the "Access" link, "Manage access" button and then the "Add people" button. 
+        - Enter the GitHub username of the person you want to add and click on the "Add" button 
+        - Once you are added to the project, you can now clone the repository to your local machine, work on it and push the changes to the remote repository 
+
+    - The next step would be to clone the repository to your local machine and start working on it 
+      - Let's create a new folder on our local machine and clone the repository to that folder 
+        - Create a new folder called "AbeGarageGithubWorkflow" 
+        - Open the folder in VS Code, open the terminal and clone the repository 
+          - git clone 
+        - Let's configure the code to run on our local machine 
+          - Make sure you have your DB ready  
+          - Since we are not committing the environment files to the repository, we need to create the environment files locally 
+            - Create a new file called ".env" in the root folder 
+            - Update the values in the ".env" file to match your local environment 
+              - For the frontend and backend 
+          - Since the "node_modules" folder is not committed to the repository, we need to install the dependencies locally 
+            - Install the dependencies for both the frontend and backend 
+              - npm install 
+            - If the codebase is not continuously monitored and updated for vulnerabilities, you might see a lot of vulnerabilities in the dependencies. You can fix them by running the following command 
+              - npm audit fix 
+              - But, you have to be careful when you run this command. It might break your code. You need to test your code thoroughly after updates. To continuously monitor and update the code base for vulnerabilities is part of a good development practice. Updating vulnerabilities is a task by it self. Since we are just working on the Employees page, we will not be updating the vulnerabilities at this stage. 
+          - Make sure you have the database ready and start the app 
+            - For the frontend 
+              - npm start 
+            - For the backend 
+              - nodemon app.js 
+
+    - Now, let's create a new branch from the "master" branch 
+      - Go to the main folder and create a new branch with descriptive name  
+        - git branch employees-page 
+        - git checkout employees-page 
+        // or you can combine the above two commands into one 
+        - git checkout -b employees-page 
+        - You can see the new branch by running the following command 
+          - git branch 
+          - You can also see it on the left bottom corner of the VS Code window 
+
+    - Now, let's start working on the Employees page features 
+      - Creating the Employees page component   
+        - Inside of our "Pages/Admin" folder, let's create a new file called "Employees.js"
+        - In the previous section, we used the Router based Authentication to protect the admin pages. Let's use a different approach this time. We will render the Employees page conditionally based on the user Authentication status. 
+
+        - On "Employees.js" file, start by importing React and our Context as we will be using it to determine the user Authentication status 
+          // Import the auth hook (Already imported)
+        - We also need to import the login form component as we will be rendering it if the user is not logged in 
+          // Import the login form component (Already imported)
+
+      - Let's create a functional component called "Employees" (Already implemented in the previous class)
+        - Let's now conditionally render the page to show the list of employees only if the user is authenticated and is an admin. If not an admin, we will display a message that says "You are not authorized to view this page". If the user is not logged in, we will display the login form instead.  
+          // Create the Employees component 
+          // Get the auth context 
+          // If the user is logged in and is an admin, show the employees page. 
+            - Start with a placeholder text and we will add the table later 
+          // If the user is logged in but is not an admin, show the not authorized message.
+          // If the user is not logged in, show the login form.
+        
+        - Let's make the page follow the admin layout 
+          // Import the admin menu component
+          // Implement the admin layout 
+      
+      - Let's now add the Employees page to the admin routes (Already implemented in the previous class)
+        - On the app.js file, import the Employees page 
+          // Import the Employees component  
+        - Add the Employees page to the admin routes 
+          // Set the Employees page route
+            - Notice we are not using the "PrivateRoute" component here. We are just going to manage the Authentication status inside of the Employees page. 
+            - Test the page and it should work as expected. 
+
+      - Let's now create a component to hold the list of employees and include it in the Employees page
+        -  Inside of our "Components/Admin" folder, let's create a new file called "EmployeesList.js" 
+        - Let's start by all the components we will be using
+          - We will need React and the useEffect and useState hooks
+          - We will need the auth context to get the user Authentication status 
+          - We will need to import react-bootstrap components (Mainly the table component) 
+          - We will need help to format our date too. So, let's import the date-fns library
+          // Import the necessary components 
+            - Since date-fns and react-bootstrap are not installed yet, let's install them 
+              - npm install date-fns 
+              - npm install react-bootstrap
+          // Import the auth context
+        
+        - Let's create a functional component called "EmployeesList" 
+          // Create all the states we need to store the data 
+            // Create the employees state to store the employees data 
+            // A state to serve as a flag to show the error message 
+            // A state to store the error message 
+          // To get the logged in employee token
+          - Now we need to create the useEffect hook to fetch the data
+            - For that, we will need a service function to send the request to the API to get the Employees data 
+            - Let's create that function inside of the "employee.service.js"
+              // A function to send get request to get all employees
+              - Export the function 
+            - Now, let's import the function to the EmployeesList component 
+              // Import the getAllEmployees function 
+            - Inside of the useEffect hook, let's call the getAllEmployees function 
+              // Call the getAllEmployees function 
+              - If the request is successful, we will store the data in the employees state 
+              - If the request is not successful, we will store the error message in the error state 
+          - We can now call our return function to conditionally display the error message or display the table 
+          - Export the EmployeesList component 
+            // Export the EmployeesList component
+
+        - Now that we have prepared the getAllEmployees function to send the request to the API, we also need to implement the API to return the list of Employees back 
+          - Let's implement that one too 
+            - Let's go to the "backend" folder and start by configuring the route
+            - On the "employee.routes.js" file, let's create a new route to get all employees 
+              // Create a route to handle the get all employees request on get 
+              // Add the middleware function to the router 
+            - The controller file is already imported. Let's now implement the function to get all employees 
+              // Create the getAllEmployees controller 
+              - Export the function
+            - Finally, inside of the "employee.service.js" file, let's implement the getAllEmployees function to query the database and return the list of employees 
+              // Implement the getAllEmployees function 
+              - Export the function
+
+      - Let's now display the EmployeesList component on the Employees page 
+        - On the Employees page, import the EmployeesList component 
+          // Import the EmployeesList component 
+        - Let's now call the EmployeesList component inside of the Employees page 
+          // Call the EmployeesList component 
+        - Test the page and it should work as expected.     
+
+    - Now that we are done with the development of our feature, we have to continue with the remaining parts of the Github Workflow. 
+    
+    - Next in the flow is to commit the changes and push them to the remote repository 
+      - Let's start by adding the changes to the staging area 
+        - git add . 
+      - Let's now commit the changes 
+        - git commit -m "Added the Employees page" 
+      - Let's now push the changes to the remote repository 
+        - git push origin employees-page 
+
+    - Now, let's create a pull request to merge the changes to the "master" branch 
+      - Go to the GitHub website and click on the "Pull requests" tab 
+      - Or, you can also find a button that says "Compare & pull request" on the repository page 
+      - If there is no conflict, you will see a message saying "Able to merge. These branches can be automatically merged." 
+      - Click on the "Create pull request" button 
+      - Enter a title and description for the pull request 
+      - Now it is open for the team to review the code and merge the pull request 
+
+    - Let's now merge the pull request 
+      - Click on the "Merge pull request" button 
+
+    - Let's now delete the branch 
+      - Click on the "Delete branch" button on the GitHub website 
+      - We also need to delete it from our local repository 
+      - Go back to your local repository 
+        - Switch to the "master" branch 
+          - git checkout master 
+        - Pull the latest changes from the remote repository 
+          - git pull origin master 
+        - Delete the new branch locally 
+          - git branch -d employees-page
+
+    - This is how you can contribute to a project using the GitHub workflow 
+      - A couple of scenarios not covered above 
+        - 1: When there is a conflict 
+        - 2: Processing the flow using VS Code 
+
+  - Resolving conflicts 
+    - For the sake of understanding how to resolve a conflict when it happens, let's intentionally create a conflict and see how to handle it 
+    - Let's just modify the "EmployeesList.js" file on the GitHub website (On the master branch) 
+      - Click on the "Edit this file" button 
+        - Make a change to the file 
+        (On line 35, just add one console log statement) 
+      - Click on the "Commit changes" button
+      - Come back to your local environment and switch to the "employees-page" branch 
+        - We had already deleted the branch. So, let's create it again 
+          - git branch employees-page-conflict
+          - git checkout employees-page-conflict  
+      - Make a change to the same line 
+        - Add another console log statement 
+      - Now, let's commit and push the change to the remote repository 
+        - git add . 
+        - git commit -m "Added intentional conflict" 
+        - Git push 
+      - Now, let's go to the GitHub website and try to create a pull request
+        - You will see a message saying that there is a conflict 
+        - You have to first resolve the conflict 
+      - You can just do a git pull and VS Code will show you where the conflict is using the "<<<<<<<", "=======" and ">>>>>>>". 
+        - That is how you resolve a conflict 
+
+  - You can also do the entire process of the Github workflow using the VS Code 
+    - The "GitHub Pull Requests and Issues" Extension helps even further with the Flow
+    - We will use VS Code in the next section to build the rest of the features  
+
+----------- 
+  Process review 
+  ---------------- 
+    - Github Flow 
+    --------------
+      - Clone the repository to your local machine (If you don't have it already)
+        - git clone  
+      
+      - Create a new branch from the "master" branch 
+        - git branch new-branch-name 
+        - git checkout new-branch-name 
+        // or you can combine the above two commands into one 
+        - git checkout -b new-branch-name
+      
+      - Work on the changes you want to make to the code base 
+
+      - Add commits to the new branch 
+        - git add . 
+        - git commit -m "commit message" 
+
+      - Push the new branch to the remote repository
+        - git push origin new-branch-name 
+
+      - Open a pull request from the new branch to the "master" branch 
+        - You can do this from the GitHub website
+          - Click on the "Pull requests" tab 
+          - Click on the "New pull request" button 
+          - Select the new branch from the "compare" dropdown 
+          - Add a title and description for the pull request 
+          - Assign reviewers 
+          - Click on the "Create pull request" button
+
+      - Discuss and review the code in the pull request 
+        - The reviewers can add comments to the pull request 
+        - The developer can respond to the comments and make changes to the code 
+        - The reviewers can approve the pull request once they are satisfied with the changes
+
+      - Merge the new branch to the "master" branch 
+        - Once the pull request is approved, the developer can merge the new branch to the "master" branch 
+        - This can be done from the GitHub website 
+          - Click on the "Merge pull request" button 
+          - Click on the "Confirm merge" button 
+      
+      - Delete the new branch 
+        - Click on the "Delete branch" button
+        - This shows up after the pull request is merged 
+
+      - Go back to your local repository 
+        - Switch to the "master" branch 
+          - git checkout master 
+        - Pull the latest changes from the remote repository 
+          - git pull origin master 
+        - Delete the new branch locally 
+          - git branch -d new-branch-name 
+    
+    - Github Flow with a merge conflict
+    ------------------------------------ 
+      - Create a new branch from the "master" branch 
+        - git branch new-branch-name 
+        - git checkout new-branch-name 
+        // or you can combine the above two commands into one 
+        - git checkout -b new-branch-name
+      
+      - Work on the changes you want to make to the code base 
+
+      - Now, just to create a conflict, go to the GitHub website and make a change to the same file that you changed locally 
+        - Click on the "Edit this file" button 
+        - Make a change to the file 
+        - Click on the "Commit changes" button 
+        (This is just to create a conflict. In real life, you will not be making changes to the same file on the GitHub website. This usually occurs when another developer makes changes to the same file and merges it to the "master" branch before you merge your changes to the "master" branch.) 
+
+      - Go back to your local repository 
+        - Add commits to the new branch 
+          - git add . 
+          - git commit -m "commit message" 
+        - Push the new branch to the remote repository
+          - git push origin new-branch-name
+
+      - Go back to your GitHub repository and try to create a pull request 
+        - You will see a message saying that there is a conflict 
+        - You can still create the pull request though 
+          - But you will not be able to merge the pull request until the conflict is resolved 
+        - Click on the "Resolve conflicts" button 
+          - Github will show you the conflicts by highlighting the conflicting lines as follows 
+            <<<<<<< master 
+            This is the conflicting line from the "master" branch 
+            ======= 
+            This is the conflicting line from the new branch 
+            >>>>>>> new-branch-name 
+
+          - It is basically saying that the line between "<<<<<<< master" and "=======" is from the "master" branch and the line between "=======" and ">>>>>>> new-branch-name" is from the new branch. Which one do you want to keep? 
+
+          - You can either keep the line from the "master" branch or the line from the new branch or you can keep both. Once you do that, just delete the lines "<<<<<<< master", "=======" and ">>>>>>> new-branch-name".
+
+          - Once you resolve the conflict, click on the "Mark as resolved" button followed by the "Commit changes" button 
+
+      - Now, you can merge the pull request 
+        - Click on the "Merge pull request" button 
+        - Click on the "Confirm merge" button 
+            
+      - Delete the new branch 
+        - Click on the "Delete branch" button
+        - This shows up after the pull request is merged 
+
+      - Go back to your local repository 
+        - Switch to the "master" branch 
+          - git checkout master 
+        - Pull the latest changes from the remote repository 
+          - git pull origin master 
+        - Delete the new branch locally 
+          - git branch -d new-branch-name 
+        - Delete the tracking branch from the remote repository 
+          - git push origin --delete new-branch-name 
+
+    - Github Flow using VS Code 
+    --------------------------- 
+      - If you don't have the repository initialized yet, you can even do that directly from VS Code 
+        - Click on the "Source Control" icon on the left side of the VS Code window 
+        - Click on the "Publish to GitHub" button 
+          - Enter the repository name
+
+      - If you are just getting started with a new project, you can clone the repository directly from VS Code 
+        - Click on the "Source Control" icon on the left side of the VS Code window 
+        - Click on the "Clone Repository" button 
+        - Enter the repository URL 
+        - Select the folder where you want to clone the repository 
+        - Click on the "Clone" button   
+
+      - To create a new branch 
+        - Click on the "Source Control" icon on the left side of the VS Code window 
+        - From the eclipse icon, click on the "Branches" and then click on the "Create new branch" button
+        - Name your branch and enter 
+
+      - To add, commit and push changes to the new branch 
+        - Click on the "Source Control" icon on the left side of the VS Code window 
+        - Click on the "Commit" button 
+        - Enter the commit message 
+        - Click on publish (This will push the changes to the remote repository) 
+
+      - We can install the Github Pull Requests and Issues extension to create and manage pull requests from VS Code 
+        - Click on the "Extensions" icon on the left side of the VS Code window 
+        - Search for "Github Pull Requests and Issues" 
+        - Click on the "Install" button 
+        - Once the extension is installed, click on the "Reload" button 
+        - Once it is installed and reloaded, you will see a new icon on the left side of the VS Code window (Github icon) 
+        - Click on the "Github" icon 
+        - Click on the "Sign in to Github" button 
+        - Enter your Github credentials and click on the "Sign in" button 
+        - Click on the "Create Pull Request" button 
+        - Select the branch you want to create the pull request from 
+        - Enter the title and description for the pull request 
+        - Click on the "Create Pull Request" button 
+        - You can now see the pull request directly from VS Code 
+        - You can also merge the pull request directly from VS Code 
+          - Click on the "Merge Pull Request" button 
+          - Click on the "Confirm Merge" button 
+          - Click on the "Delete Branch" button 
+          - Click on the "Delete Branch" button again
+
+
