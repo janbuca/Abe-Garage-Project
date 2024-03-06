@@ -1,0 +1,236 @@
+Building the Authorization System
+--------------------------------- 
+    - At this point, we have a working Authentication system. However, we still need to build the Authorization system. Authorization is the process of determining if a user is allowed to perform an action. For example, if a user is logged in AND the user is an admin, then the user is authorized to access all the admin pages. If the user is logged in but is not an admin but just a manager or an employee, then the user is authorized to access only the pages that are allowed for the respective user roles. If the user is not logged in, then the user is not authorized to access any page that requires authentication. 
+
+    - The first thing we need to do is clearly define the user roles and the pages that are allowed for each user role. This is usually done during the product design phase. Not during the development phase. While we were designing the product, we already created the Wire-Frames for all the pages on our application. We need to also assign the user roles to each page.   
+
+    - Note: Use the Principle of Least Privilege when assigning user roles to pages. This means, a user should only have access to the specific page needed to complete a required task. For example, a mechanic in the Abe Garage App, should only have access to the page the Admin uses to add a new Employee. But, should have access to the order page to view the details of the order he/she is working on. 
+
+    - Below are all the pages we have on our application and the user roles that are allowed to access each page. 
+      - Pages on our app (From the Wire-Frames)
+        - Root level public pages (No authentication required) 
+          - Home page (/) 
+          - About us page (/about) 
+          - Services page (/services) 
+          - Contact us page (/contact) 
+          - Admin page 
+            - Show only if logged in, link to the dashboard (/dashboard)
+          - Login (/login)
+          - Order details (/order/{orderHash}) 
+            - Not to be included on the menu 
+
+        - Admin (Login required) 
+          - Admin dashboard (/admin) (Only for admins)
+          - Employees (/admin/employees) (Only for admins)
+          - Add employee (/admin/add-employee) (Only for admins) 
+          - Edit employee (/admin/employee/edit/:id) (Only for admins)  
+          - Customers (/admin/customers) (Managers and Admins)  
+          - Add customer (/admin/add-customer) (Managers and Admins)  
+          - Edit customer (/admin/customer/edit/:id) (Managers and Admins)  
+          - Customer details (/admin/customer/{customerId}) (Managers and Admins) 
+          - Add vehicle (/admin/customer/{customerId}) - Conditionally displayed on the customer details page (Managers and Admins) 
+          - Orders (/admin/orders) (All Authenticated users) 
+          - Add order (/admin/order) (Managers and Admins)  
+          - Edit order (/admin/order/{orderHash}/edit) (Managers and Admins)  
+          - Services (/admin/services) (Only for admins) 
+          - Add service (/admin/add-service) (Only for admins) 
+
+    - Now that we have defined the user roles and the pages that are allowed for each user role, we can start building the authorization system. 
+      - We can implement the Authorization system in two layers. 
+        - We can implement it on the client side. This means, we can check if the user is authorized to access a page on the client side. 
+        - We can implement it on the server side. This means, we can check if the user is authorized to access a page on the server side. (On the API endpoints)
+        - The recommended approach is to implement it on both. This means, we can check if the user is authorized to access a page on the client side and also check if the user is authorized to access the API endpoint on the server side. We will implement it on both layers.  
+      
+      - Let's start by implementing the authorization system on the client side.
+        - There are multiple ways to handle this
+
+        - Using React's routing system (Protected Routes)
+          - This is commonly known us the "Protected Routes" approach. The idea is to create a custom component that checks the user's authentication status and role before rendering a particular route.  
+
+          - Remember, when we are not checking for authorization, we can just render the component directly. 
+            - For example, if we want to render the Add employee page, we can just render the AddEmployee component directly. 
+              - <Route path="/admin/add-employee" element={<AddEmployee />} /> 
+          
+          - However, if we want to check for authorization, we can wrap the component (The "AddEmployee" ) with a custom component that checks the user's authentication status and role before rendering the component. 
+            - For example, if we want to render the Add employee page, we can wrap the AddEmployee component with a custom component that checks the user's authentication status and role before rendering the component. 
+              <Route path="/admin/add-employee" element={<PrivateAuthRoute role={[3]}     
+              /><AddEmployee /></PrivateAuthRoute>} /> 
+              - In this case, we are passing the role id of the admin as only admins have access to the Add employee page. 
+              - The PrivateAuthRoute component checks if the user is logged in and the role of the user is in the allowed roles array. If logged in and authorized, then it renders the requested component. If the user is not logged in, then we can redirect the user to the login page. If the user is logged in but is not authorized to access the page, then we can redirect the user to a page that says "You are not authorized to access this page". 
+          
+          - Let's implement this approach 
+            - First, we need to create a custom component that checks the user's authentication status and role before rendering a particular route.
+          
+            - To do that, inside of our "Components" folder, create a folder called "Auth" and inside of that folder, create a file called "PrivateAuthRoute.js" 
+          
+            - Inside of the "PrivateAuthRoute.js" file, we need to import the "Navigate" component to redirect users to a different page when they are not authorized to access a page.  
+              // Import the Navigate components  
+              // Import the Util function we created to handle the reading from the local storage 
+            - Let's write our function to export the wrapper component called "PrivateAuthRoute" 
+              
+              - The job of this component is to check if the user is logged in first. If the user is logged in, then we can check if the user is authorized to access the page. If logged in and authorized, then it renders the requested component. If the user is not logged in, then we can redirect the user to the login page. If the user is logged in but is not authorized to access the page, then we can redirect the user to a page that says "You are not authorized to access this page". 
+
+                // Create a custom component called PrivateAuthRoute 
+                  - The PrivateAuthRoute component takes in the role props
+                    - The role prop is the role(s) of the user that can access the route (This is an array of role ids that are allowed to access the route) 
+                    - Then it checks if the user is logged in and the role of the user is in the allowed roles array 
+                    // Import React, the useState and useEffect hooks
+                    // Create a PrivateAuthRoute component  
+                      - Start by defining the states we need 
+                        - isLogged: To store the user's authentication status 
+                        - isAuthorized: To store the user's authorization status 
+                        - isChecked: a flag to indicate if the user's authentication and authorization status has been checked:  
+                    // Redirect the user to the login page if they are not logged in 
+                    // Redirect the user to the unauthorized page if they are logged in but do not have the authorization to access the route
+
+                    - On the App.js file, we need to import the PrivateAuthRoute component 
+                      // Import the PrivateAuthRoute component 
+                      - Let's now configure the Routes of the pages we want to protect 
+                        - Let's start from these four pages 
+                          - Home page (/) - Can be accessed by all users  
+                          - Orders (/admin/orders) - Can be accessed by all employees  
+                          - Customers (/admin/customers) - Can be accessed by managers and admins 
+                          - Add employee (/admin/add-employee) - Can be accessed only by admins 
+                        
+                        - We already have configured the Home and Add employee routes. So, let's configure the Orders and Customers pages 
+                          - Since we haven't even created the components for these pages, let's just create some placeholder components for now 
+                            - Create a placeholder component for the Orders page 
+                              - Inside of our "markup/Pages/Admin" folder, create a file called "Orders.js" 
+                              - Just return a div with the text that says "Orders Page"
+
+                            - Create a placeholder component for the Customers page 
+                              - Inside of our "markup/Pages/Admin" folder, create a file called "Customers.js"
+                              - Just return a div with the text that says "Customers Page" 
+
+                        - Now, we can configure the routes for these pages 
+                          - On the App.js file, we need to import the components we just created 
+                            // Import the Orders and Customers components 
+                          - Now, we can configure the routes 
+                            - The Home page: is already configured and there is no restriction applied to it. That means, it can be accessed by all users. So, we don't need to do anything to it. 
+                            - The Orders page: 
+                              - Let's start by adding the Orders and Customers Route to our App.js file 
+                                - First, let's just add the Routes without any restriction and test if they are working
+                                  - /admin/orders
+                                  - /admin/customers 
+                                - Now, let's add the restriction to the Orders page 
+                                  - What we are trying to do here is instead of directly rendering the Orders component, we are instead wrapping the Orders component with our custom PrivateAuthRoute component which checks the proper authentication and authorization of the logged in user. 
+                                  - We also pass the role ids that are allowed to access the Orders page to the PrivateAuthRoute component as props. 
+                                    - In this case, we are passing the role ids of the employees, managers and admins as all have access to the Orders page. 
+                                      - Admin: 3 
+                                      - Manager: 2 
+                                      - Employee: 1 
+                                  // Add the Orders Route with the PrivateAuthRoute component 
+                                    - If we test our page at this point, it should just work as we haven't even implemented the authorization inside of the component yet. 
+                                - We can now test if all logged in users can access the Orders page 
+                                  - Use these three test users (Already created earlier)
+                                    - User 1: (Employee)
+                                      - Email: employee@evangadi.com 
+                                      - Password: 123456 
+                                    - User 2: (Manager)
+                                      - Email: manager@evangadi.com 
+                                      - Password: 123456 
+                                    - User 3: (Admin)
+                                      - Email: admin@evangadi.com
+                                      - Password: 123456  
+
+                            - The Customers page: 
+                              - Let's start by adding the Customers Route to our App.js file 
+                              // Set the Customers page route 
+                                - Since the customers page can be accessed by both managers and admins, we need to pass the role ids of both managers and admins to the PrivateAuthRoute component as props. 
+                                  - In this case, we are passing the role ids of the managers and admins as both have access to the Customers page. 
+                                    - Admin: 3
+                                    - Manager: 2 
+                                - Test with all three users 
+                                  - It should allow the Admin and Manager to access the page but not the Employee 
+
+                            - The Add employee page: 
+                              - Let's modify our Add employee route to restrict access to only admins 
+                                - We need to pass the role id of the admin to the PrivateAuthRoute component as props. 
+                                  - In this case, we are passing the role id of the admin as only admins have access to the Add employee page. 
+                                    - Admin: 3 
+                                - Test with all three users 
+                                  - It should allow only the Admin to access the page but not the Manager and Employee
+
+        - We can also implement the restriction on the page or component level 
+          - As an example, lets implement the restriction on the "admin/employees" page 
+          - Since we haven't even created the components for this page, let's just create a placeholder component for now 
+            - Create a placeholder component for the Employees page 
+              - Inside of our "markup/Pages/Admin" folder, create a file called "Employees.js" 
+              - Just return a div with the text that says "Employees Page"               
+          - Configure the route on the App.js file 
+            // Set the Employees page route 
+            - Instead of adding the Route level checking on the App.js file, we can apply the checking directly on the Employees page 
+              - On the Employees.js file, start by importing the "useAuth" hook 
+                // Import the useAuth hook 
+                // Destructure the auth hook 
+              - Now, we can use the "isLogged" and "isAdmin" properties to check if the user is logged in and authorized to access the page 
+                - If the user is not logged in, we can directly show the login page
+                  // Import the "LoginForm" component 
+                  - We can just render the LoginForm component on the page itself (Better user experience) 
+                - If the user is logged in but is not authorized to access the page, display a message that says "You are not authorized to access this page" 
+                  - We can just render a div with the text that says "You are not authorized to access this page"
+                - If the user is logged in and is authorized to access the page, then we can render the Employees component 
+              
+      - Let's implement the authorization system on the server side. 
+        - The goal in here is to check if the user is authorized to access the API endpoint. 
+        - To be able to do that, every request to the API endpoint should contain the user's token. Once the token is received, we can decode the token on our backend server, read the payload, identify the user's role and check if the user's role is allowed to access the API endpoint. 
+
+        - The common way to handle this would be to use a middleware function. 
+          - A middleware function is a function that has access to the request and response objects and the next middleware function in the application's request-response cycle. 
+          - We can use the middleware function to check if the user is authorized to access the API endpoint. If the user is authorized, then we can call the next middleware function in the stack. If the user is not authorized, then we can end the request-response cycle and return an error message. 
+ 
+        - Let's start by implementing the authorization on our "Add Employee" form making sure the user sending the API request has the authorization to add a new employee. (Means, the user sending the request is an admin)  
+          - Remember, the API endpoint for adding a new employee is "/api/employees" and the method is "POST" 
+          - We have already configured the API endpoint on our backend Router. So, we just need to implement the authorization middleware function. We also need to make sure the user's token is sent with the request. 
+
+          - First, let's make sure the token is included in our header when we send the request 
+            - Let's go back to the form we used to collect new employee data and prepared the object to send to our API endpoint (AddEmployeeForm.js) 
+            - If you take a look at it, we haven't yet included the token anywhere 
+            - Even the function we wrote to send the request (employeeService.createEmployee), only accepts the formData object as an argument. Lets start by modifying the function to accept the token as well 
+              - On the "employees.service.js" file, we need to modify the "createEmployee" function to accept the token as an argument 
+                // Modify the createEmployee function to accept the token as an argument
+              - We also need to add the token to the request header on "x-access-token" property 
+                
+            - Let's now pass the token to the function when we call it  
+              - On the "AddEmployeeForm.js" file, we need to import our custom auth hook 
+                // Import the useAuth hook 
+              - Next, let's create a variable to hold the user's token 
+                // Create a variable to hold the user's token  
+              - Next, we need to use the custom auth hook to access the user's token
+                // Destructure the auth hook and get the token 
+              - We can then pass the token to the "createEmployee" function when we call it 
+                // Pass the token to the createEmployee function 
+                - We can check our header by disabling the code that sends the response to the service first 
+
+          - Now, we can implement the authorization middleware function 
+            - First, let's go to our backend and make sure the token is being received 
+              - On the "employees.controller.js" file, inside of our "createEmployee" let's log the token to the console 
+                - Disable the code that sends the response to the service first then log 
+                - console.log(req.headers); 
+              - Test the API endpoint 
+                - If you take a look at the console, you should see the token being logged to the console under "x-access-token" property 
+
+            - Before we even get to our controller, let's add a middleware function to our router to check if the token sent with the request is valid. Once we verify that, we can check if the user is authorized to access the API endpoint. 
+              - We already created the file to write our middleware functions. Which is the "auth.middleware.js" file. 
+              - Let's start by importing the "dotenv" package to access the environment variables 
+                // Import the dotenv package
+              - We also need to import the "jsonwebtoken" package to verify the token 
+                // Import the jsonwebtoken package
+              - We also need to import the "employee.service.js"  
+                // Import the employee service 
+              - Write a function to verify the token
+                // A function to verify the token received from the frontend 
+                  - Notice this function accepts the token and verify using the jwt.verify method. If it fails, it returns a message saying "Unauthorized". If it succeeds, it returns the decoded token. 
+                  - We can save any data we want on the request object and pass it to the next middleware function in the stack using the next() method. 
+              - Now that we have prepared the function to verify the token, we can add it on our router as a middleware function 
+                - on the "employees.router.js" file, import our middleware 
+                  // Import middleware 
+                - Add the middleware function to the router 
+                  // Add the middleware function to the router
+              - So far, we have only verified the token. We also need to write a function to check if the user is an admin 
+                // A function to check if the user is an admin 
+                  - The role of the admin is "3". So, we can check if the role of the user is "3" 
+                  - If the user is not an admin, we can return a message saying "Not an Admin!". If the user is an admin, we can call the next middleware function in the stack using the next() method. 
+                  - At this point, even if some one accesses the form on the from end and sends the request, they will get an error message saying "Not an Admin!" if they are not an admin.  
+                    - Test both as an employee and as an admin 
+                       
